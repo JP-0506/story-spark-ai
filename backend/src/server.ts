@@ -1,3 +1,4 @@
+import { Application, Request, Response } from "express";
 import mongoose from "mongoose";
 import config from "./config";
 import app from "./app";
@@ -5,12 +6,15 @@ import dns from "dns";
 
 dns.setServers(["1.1.1.1", "8.8.8.8"]);
 
+async function connectDB() {
+  if (mongoose.connection.readyState === 1) return;
+  await mongoose.connect(config.database_url as string);
+}
 
 async function main() {
   try {
-    const url = config.database_url;
-    console.log(url);
-    await mongoose.connect(config.database_url as string);
+    console.log(config.database_url);
+    await connectDB();
     app.listen(config.port, () => {
       console.log(`Story-Spark-AI app listening on port ${config.port}`);
     });
@@ -19,4 +23,23 @@ async function main() {
   }
 }
 
-main();
+/**
+ * Vercel (@vercel/node) invokes the default export; Express alone must not call listen().
+ */
+export default async function handler(req: Request, res: Response) {
+  try {
+    await connectDB();
+  } catch (error) {
+    console.error("Error connecting to the database:", error);
+    res.status(500).json({
+      success: false,
+      message: "Database unavailable",
+    });
+    return;
+  }
+  (app as Application)(req, res);
+}
+
+if (process.env.VERCEL !== "1") {
+  void main();
+}

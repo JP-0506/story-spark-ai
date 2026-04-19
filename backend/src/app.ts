@@ -52,13 +52,15 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-// Cron job to reset request counts at the beginning of each month
-cron.schedule("0 0 1 * *", async () => {
-  try {
-    await User.updateMany({}, { $set: { requestsThisMonth: 0 } });
-  } catch (error) {
-    console.error("Failed to reset request counts:", error);
-  }
-});
+// Cron job to reset request counts at the beginning of each month (skip on Vercel serverless)
+if (!process.env.VERCEL) {
+  cron.schedule("0 0 1 * *", async () => {
+    try {
+      await User.updateMany({}, { $set: { requestsThisMonth: 0 } });
+    } catch (error) {
+      console.error("Failed to reset request counts:", error);
+    }
+  });
+}
 
 export default app;
