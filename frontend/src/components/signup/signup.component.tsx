@@ -32,6 +32,7 @@ const SignUpComponent = () => {
   const [showOtpField, setShowOtpField] = useState<boolean>(false);
   const [registerInfo, setRegisterInfo] = useState<IRegisterInfo>();
   const [expiredAt, setExpiredAt] = useState(0);
+  const [verificationToken, setVerificationToken] = useState<string>("");
 
   const password = watch("password");
   const confirmPassword = watch("confirmPassword");
@@ -90,12 +91,28 @@ const SignUpComponent = () => {
     }
     setIsBusy(true);
     try {
-      await verifyOtp({ email: registerInfo.email, otp: enteredOtp }).unwrap();
-      const res = await registerUser({ ...registerInfo }).unwrap();
-      if (res.data.accessToken) {
-        toast.success("OTP validated successfully!");
-        storeUserInfo({ accessToken: res.data.accessToken });
-        navigate("/");
+      const otpResponse = await verifyOtp({ 
+        email: registerInfo.email, 
+        otp: enteredOtp 
+      }).unwrap();
+      
+      // Store the verification token returned from OTP verification
+      if (otpResponse?.data?.verificationToken) {
+        setVerificationToken(otpResponse.data.verificationToken);
+        
+        // Now register user with verification token
+        const res = await registerUser({ 
+          ...registerInfo,
+          verificationToken: otpResponse.data.verificationToken 
+        }).unwrap();
+        
+        if (res.data.accessToken) {
+          toast.success("OTP validated successfully!");
+          storeUserInfo({ accessToken: res.data.accessToken });
+          navigate("/");
+        }
+      } else {
+        throw new Error("No verification token received");
       }
     } catch (err: unknown) {
       const message =

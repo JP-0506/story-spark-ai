@@ -16,7 +16,9 @@ exports.VerifyEmailService = void 0;
 const nodemailer_1 = __importDefault(require("nodemailer"));
 const api_error_1 = __importDefault(require("../../../errors/api_error"));
 const config_1 = __importDefault(require("../../../config"));
-const otpStore = {};
+const http_status_1 = __importDefault(require("http-status"));
+const otp_model_1 = require("./otp.model");
+const crypto_1 = __importDefault(require("crypto"));
 const transporter = nodemailer_1.default.createTransport({
     service: "Gmail",
     auth: {
@@ -26,10 +28,22 @@ const transporter = nodemailer_1.default.createTransport({
 });
 const VerifyEmail = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        if (!config_1.default.verify_email || !config_1.default.verify_password) {
+            throw new api_error_1.default(http_status_1.default.BAD_REQUEST, "Email verification credentials are missing. Set VERIFY_EMAIL and VERIFY_PASSWORD in backend/.env.");
+        }
         const { email, name } = payload;
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        const expiresAt = Date.now() + 10 * 60 * 1000;
-        otpStore[email] = { otp, expiresAt };
+        const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
+        // Delete any existing OTP for this email
+        yield otp_model_1.OTPModel.deleteOne({ email });
+        // Create new OTP record in MongoDB
+        yield otp_model_1.OTPModel.create({
+            email,
+            otp,
+            expiresAt,
+            failedAttempts: 0,
+            isVerified: false,
+        });
         const mailOptions = {
             from: config_1.default.verify_email,
             to: email,
@@ -73,6 +87,7 @@ const VerifyEmail = (payload) => __awaiter(void 0, void 0, void 0, function* () 
       </html>
       `,
         };
+<<<<<<< HEAD
         if (config_1.default.verify_email && config_1.default.verify_password) {
             yield transporter.sendMail(mailOptions);
         }
@@ -85,9 +100,62 @@ const VerifyEmail = (payload) => __awaiter(void 0, void 0, void 0, function* () 
     }
     catch (error) {
         console.error("Failed to verify email:", error);
+=======
+        yield transporter.sendMail(mailOptions);
+        return {
+            expiresAt,
+        };
+    }
+    catch (error) {
+        if (error instanceof api_error_1.default) {
+            throw error;
+        }
+>>>>>>> 422a0bf (CORRECT: Verify OTP)
         throw new api_error_1.default(500, "Failed to send email");
     }
 });
+const VerifyOtp = (payload) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email, otp } = payload;
+    // FIX #3: Input validation - check if otp is a non-empty string before calling .trim()
+    if (typeof otp !== "string" || !otp) {
+        throw new api_error_1.default(http_status_1.default.BAD_REQUEST, "OTP must be a non-empty string");
+    }
+    const storedOtpRecord = yield otp_model_1.OTPModel.findOne({ email });
+    if (!storedOtpRecord) {
+        throw new api_error_1.default(http_status_1.default.NOT_FOUND, "OTP not found or expired. Please request a new one.");
+    }
+    // Check if OTP has expired
+    if (new Date() > storedOtpRecord.expiresAt) {
+        yield otp_model_1.OTPModel.deleteOne({ email });
+        throw new api_error_1.default(http_status_1.default.BAD_REQUEST, "OTP expired. Please request a new one.");
+    }
+    // FIX #2: Rate limiting - max 5 failed attempts
+    if (storedOtpRecord.failedAttempts >= 5) {
+        yield otp_model_1.OTPModel.deleteOne({ email });
+        throw new api_error_1.default(http_status_1.default.TOO_MANY_REQUESTS, "Too many failed attempts. Please request a new OTP.");
+    }
+    // Verify OTP
+    if (storedOtpRecord.otp !== otp.trim()) {
+        // Increment failed attempts
+        storedOtpRecord.failedAttempts += 1;
+        yield storedOtpRecord.save();
+        throw new api_error_1.default(http_status_1.default.BAD_REQUEST, `Invalid OTP. Please try again. (${5 - storedOtpRecord.failedAttempts} attempts remaining)`);
+    }
+    // FIX #4: Create verification token instead of returning only { verified: true }
+    // This token binds the verification to a specific email and must be used in registration
+    const verificationToken = crypto_1.default.randomBytes(32).toString("hex");
+    const verificationTokenExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes validity
+    storedOtpRecord.isVerified = true;
+    storedOtpRecord.verificationToken = verificationToken;
+    storedOtpRecord.verificationTokenExpires = verificationTokenExpires;
+    yield storedOtpRecord.save();
+    return {
+        verified: true,
+        verificationToken, // Client must include this in registration request
+        expiresIn: 15 * 60, // 15 minutes in seconds
+    };
+});
 exports.VerifyEmailService = {
     VerifyEmail,
+    VerifyOtp,
 };

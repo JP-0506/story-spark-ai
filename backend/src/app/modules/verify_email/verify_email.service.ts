@@ -4,12 +4,8 @@ import { IVerifyOtpBody } from "./verify_email.interface";
 import ApiError from "../../../errors/api_error";
 import config from "../../../config";
 import httpStatus from "http-status";
-
-interface OTPStore {
-  [email: string]: { otp: string; expiresAt: number };
-}
-
-const otpStore: OTPStore = {};
+import { OTPModel } from "./otp.model";
+import crypto from "crypto";
 
 const transporter = nodemailer.createTransport({
   service: "Gmail",
@@ -30,8 +26,20 @@ const VerifyEmail = async (payload: IEmailBody) => {
 
     const { email, name } = payload;
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = Date.now() + 10 * 60 * 1000;
-    otpStore[email] = { otp, expiresAt };
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
+    
+    // Delete any existing OTP for this email
+    await OTPModel.deleteOne({ email });
+    
+    // Create new OTP record in MongoDB
+    await OTPModel.create({
+      email,
+      otp,
+      expiresAt,
+      failedAttempts: 0,
+      isVerified: false,
+    });
+    
     const mailOptions = {
       from: config.verify_email,
       to: email,
@@ -96,33 +104,69 @@ const VerifyEmail = async (payload: IEmailBody) => {
 
 const VerifyOtp = async (payload: IVerifyOtpBody) => {
   const { email, otp } = payload;
-  const storedOtp = otpStore[email];
+  
+  // FIX #3: Input validation - check if otp is a non-empty string before calling .trim()
+  if (typeof otp !== "string" || !otp) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "OTP must be a non-empty string"
+    );
+  }
+  
+  const storedOtpRecord = await OTPModel.findOne({ email });
 
-  if (!storedOtp) {
+  if (!storedOtpRecord) {
     throw new ApiError(
       httpStatus.NOT_FOUND,
       "OTP not found or expired. Please request a new one."
     );
   }
 
-  if (Date.now() > storedOtp.expiresAt) {
-    delete otpStore[email];
+  // Check if OTP has expired
+  if (new Date() > storedOtpRecord.expiresAt) {
+    await OTPModel.deleteOne({ email });
     throw new ApiError(
       httpStatus.BAD_REQUEST,
       "OTP expired. Please request a new one."
     );
   }
 
-  if (storedOtp.otp !== otp.trim()) {
+  // FIX #2: Rate limiting - max 5 failed attempts
+  if (storedOtpRecord.failedAttempts >= 5) {
+    await OTPModel.deleteOne({ email });
     throw new ApiError(
-      httpStatus.BAD_REQUEST,
-      "Invalid OTP. Please try again."
+      httpStatus.TOO_MANY_REQUESTS,
+      "Too many failed attempts. Please request a new OTP."
     );
   }
 
-  delete otpStore[email];
+  // Verify OTP
+  if (storedOtpRecord.otp !== otp.trim()) {
+    // Increment failed attempts
+    storedOtpRecord.failedAttempts += 1;
+    await storedOtpRecord.save();
+    
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      `Invalid OTP. Please try again. (${5 - storedOtpRecord.failedAttempts} attempts remaining)`
+    );
+  }
 
-  return { verified: true };
+  // FIX #4: Create verification token instead of returning only { verified: true }
+  // This token binds the verification to a specific email and must be used in registration
+  const verificationToken = crypto.randomBytes(32).toString("hex");
+  const verificationTokenExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes validity
+  
+  storedOtpRecord.isVerified = true;
+  storedOtpRecord.verificationToken = verificationToken;
+  storedOtpRecord.verificationTokenExpires = verificationTokenExpires;
+  await storedOtpRecord.save();
+
+  return { 
+    verified: true,
+    verificationToken, // Client must include this in registration request
+    expiresIn: 15 * 60, // 15 minutes in seconds
+  };
 };
 
 export const VerifyEmailService = {
