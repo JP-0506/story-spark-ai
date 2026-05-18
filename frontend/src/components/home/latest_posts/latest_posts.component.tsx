@@ -3,9 +3,12 @@ import { Post } from "../../../models/post";
 import LoadingAnimation from "../../loading/loading.component";
 import SSProfile from "../../ui-component/ss-profile/ss-profile";
 import { formatDateShort } from "../../../utils/time-formate";
+import { useNavigate } from "react-router-dom";
 
 const LatestPostsComponent = () => {
   const { data, isLoading } = useGetLatestListsQuery(undefined);
+  const navigate = useNavigate();
+
   if (isLoading) {
     return <LoadingAnimation />;
   }
@@ -17,7 +20,8 @@ const LatestPostsComponent = () => {
           data?.posts?.map((post: Post) => (
             <div
               key={post._id}
-              className="bg-blue-500/10 rounded-lg shadow-sm p-6"
+              onClick={() => navigate(`/post/${post._id}`)}
+              className="bg-blue-500/10 rounded-lg shadow-sm p-6 cursor-pointer hover:bg-blue-500/20 transition-colors duration-200"
             >
               <div className="flex items-center mb-4">
                 <SSProfile name={post.author?.name || 'Unknown User'} size="h-8 w-8" />
