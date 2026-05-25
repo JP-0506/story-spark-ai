@@ -54,6 +54,9 @@ export const ProfileSettingComponent = ({ user, onSave, loading }: ProfileSettin
     });
   };
 
+  const inputClassName =
+    "w-full px-4 py-2 border border-gray-300 rounded-lg bg-slate-900/70 text-gray-100 placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition";
+
   return (
     <div className="min-h-screen  py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
@@ -86,7 +89,7 @@ export const ProfileSettingComponent = ({ user, onSave, loading }: ProfileSettin
                       name="name"
                       value={formData.name}
                       onChange={handleChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                      className={inputClassName}
                     />
                   </div>
 
@@ -103,7 +106,7 @@ export const ProfileSettingComponent = ({ user, onSave, loading }: ProfileSettin
                       name="email"
                       value={user.email}
                       onChange={handleChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition cursor-not-allowed"
+                      className={`${inputClassName} cursor-not-allowed`}
                       disabled={true}
                     />
                   </div>
@@ -121,7 +124,7 @@ export const ProfileSettingComponent = ({ user, onSave, loading }: ProfileSettin
                       name="avatar"
                       value={formData.avatar}
                       onChange={handleChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                      className={inputClassName}
                     />
                     {formData.avatar && (
                       <div className="mt-2">
@@ -147,7 +150,7 @@ export const ProfileSettingComponent = ({ user, onSave, loading }: ProfileSettin
                       rows={3}
                       value={formData.bio}
                       onChange={handleChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                      className={`${inputClassName} min-h-[96px]`}
                     />
                   </div>
                 </div>
@@ -179,7 +182,7 @@ export const ProfileSettingComponent = ({ user, onSave, loading }: ProfileSettin
                       name="social.facebook"
                       value={formData.social.facebook}
                       onChange={handleChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                      className={inputClassName}
                       placeholder="https://facebook.com/username"
                     />
                   </div>
@@ -204,7 +207,7 @@ export const ProfileSettingComponent = ({ user, onSave, loading }: ProfileSettin
                       name="social.twitter"
                       value={formData.social.twitter}
                       onChange={handleChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
+                      className={inputClassName}
                       placeholder="https://twitter.com/username"
                     />
                   </div>
@@ -229,7 +232,7 @@ export const ProfileSettingComponent = ({ user, onSave, loading }: ProfileSettin
                       name="social.linkedin"
                       value={formData.social.linkedin}
                       onChange={handleChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-700 focus:border-blue-700 transition"
+                      className={inputClassName}
                       placeholder="https://linkedin.com/in/username"
                     />
                   </div>
@@ -254,7 +257,7 @@ export const ProfileSettingComponent = ({ user, onSave, loading }: ProfileSettin
                       name="social.instagram"
                       value={formData.social.instagram}
                       onChange={handleChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition"
+                      className={inputClassName}
                       placeholder="https://instagram.com/username"
                     />
                   </div>

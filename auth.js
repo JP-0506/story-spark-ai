@@ -1,0 +1,358 @@
+/* ═══════════════════════════════════════════════
+   STORY SPARK AI AUTHENTICATION SCRIPT ACTIONS
+   File: auth.js
+   ═══════════════════════════════════════════════ */
+
+let currentMode = 'signin';
+
+// ── Google Identity Services (GIS) Client ID ──
+const GOOGLE_CLIENT_ID = 'const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com'';
+
+/* ── DOM Init & Global Handler Registrations ── */
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Detect initial auth page mode based on filename
+    const isSignupPage = window.location.pathname.includes('signup.html');
+    currentMode = isSignupPage ? 'signup' : 'signin';
+
+    // 2. Initialize dynamic Google Sign-In text if present
+    const googleBtnText = document.getElementById('google-btn-text');
+    if (googleBtnText) {
+        googleBtnText.innerText = currentMode === 'signup' ? 'sign in with Google' : 'Sign in with Google';
+    }
+
+    // 3. Initialize Particle Canvas System
+    initParticleSystem();
+
+    // 4. Form Submit Listener
+    const authForm = document.getElementById('auth-form');
+    if (authForm) {
+        authForm.addEventListener('submit', handleFormSubmit);
+    }
+
+    // 5. Initialize Google Identity Services
+    setTimeout(initGoogleAuth, 500);
+});
+
+/* ── Advanced Particle System (Canvas + Mouse Interactions) ── */
+function initParticleSystem() {
+    const canvas = document.getElementById('particle-canvas');
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    const section = canvas.parentElement;
+    const PARTICLE_COUNT = 120;
+    const MOUSE_RADIUS = 140;
+    const REPEL_STRENGTH = 0.06;
+    const COLORS = [
+        'rgba(208,188,255,', // primary / lavender
+        'rgba(251,171,255,', // secondary / magenta
+        'rgba(160,120,255,', // electric purple
+        'rgba(100,220,255,', // cyan
+        'rgba(236,106,6,'   // tertiary / orange spark
+    ];
+    let mouse = { x: -9999, y: -9999 };
+    let particles = [];
+
+    function resize() {
+        if (!section) return;
+        canvas.width = section.offsetWidth;
+        canvas.height = section.offsetHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    section.addEventListener('mousemove', e => {
+        const rect = section.getBoundingClientRect();
+        mouse.x = e.clientX - rect.left;
+        mouse.y = e.clientY - rect.top;
+    });
+    
+    section.addEventListener('mouseleave', () => {
+        mouse.x = -9999;
+        mouse.y = -9999;
+    });
+
+    class Particle {
+        constructor() { this.reset(true); }
+        reset(init) {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 1.5 + 0.5;
+            this.baseAlpha = Math.random() * 0.45 + 0.15;
+            this.alpha = this.baseAlpha;
+            this.vx = (Math.random() - 0.5) * 0.4;
+            this.vy = (Math.random() - 0.5) * 0.4;
+            this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
+            this.pulseSpeed = Math.random() * 0.02 + 0.008;
+            this.pulsePhase = Math.random() * Math.PI * 2;
+        }
+        update(t) {
+            this.x += this.vx;
+            this.y += this.vy;
+            this.alpha = this.baseAlpha + Math.sin(t * this.pulseSpeed + this.pulsePhase) * 0.2;
+            
+            const dx = this.x - mouse.x;
+            const dy = this.y - mouse.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < MOUSE_RADIUS && dist > 0) {
+                const force = (MOUSE_RADIUS - dist) / MOUSE_RADIUS * REPEL_STRENGTH;
+                this.vx += (dx / dist) * force * 3;
+                this.vy += (dy / dist) * force * 3;
+                this.alpha = Math.min(1, this.alpha + 0.3);
+                this.size = Math.min(this.size + 0.2, 3.0);
+            } else {
+                this.size += (Math.random() * 1.5 + 0.5 - this.size) * 0.02;
+            }
+            this.vx *= 0.985;
+            this.vy *= 0.985;
+
+            if (this.x < -10) this.x = canvas.width + 10;
+            if (this.x > canvas.width + 10) this.x = -10;
+            if (this.y < -10) this.y = canvas.height + 10;
+            if (this.y > canvas.height + 10) this.y = -10;
+        }
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fillStyle = this.color + this.alpha + ')';
+            ctx.shadowColor = this.color + '0.6)';
+            ctx.shadowBlur = this.size * 4;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        }
+    }
+
+    for (let i = 0; i < PARTICLE_COUNT; i++) particles.push(new Particle());
+
+    let frame = 0;
+    function animate() {
+        frame++;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => { p.update(frame); p.draw(); });
+        requestAnimationFrame(animate);
+    }
+    animate();
+}
+
+/* ── Auth State & Tab Toggling (Smooth in-page transitions) ── */
+function toggleAuthMode(mode) {
+    if (currentMode === mode) return;
+    currentMode = mode;
+
+    const form = document.getElementById('auth-form');
+    if (!form) return;
+
+    form.classList.add('form-transitioning');
+
+    setTimeout(() => {
+        const signupFields = document.getElementById('signup-fields');
+        const nameField = document.getElementById('name-field');
+        const submitBtn = document.getElementById('submit-btn');
+        const tabSignin = document.getElementById('tab-signin');
+        const tabSignup = document.getElementById('tab-signup');
+        const forgotPass = document.getElementById('forgot-password-link') || document.querySelector('a[href="#"]');
+        const navToggle = document.getElementById('nav-toggle');
+        const googleBtnText = document.getElementById('google-btn-text');
+
+        if (mode === 'signup') {
+            if (signupFields) signupFields.classList.remove('hidden');
+            if (nameField) nameField.required = true;
+            if (forgotPass) forgotPass.classList.add('invisible');
+            if (submitBtn) submitBtn.innerText = 'Create Account';
+            if (googleBtnText) googleBtnText.innerText = 'sign in with Google';
+            
+            // Tabs styling
+            if (tabSignup) tabSignup.className = "flex-1 pb-3 font-label-caps text-label-caps text-primary border-b-2 border-primary transition-all duration-300";
+            if (tabSignin) tabSignin.className = "flex-1 pb-3 font-label-caps text-label-caps text-on-surface-variant border-b-2 border-transparent hover:text-on-surface transition-all duration-300";
+            
+            // Bottom link toggle content
+            if (navToggle) {
+                navToggle.innerHTML = `Already have an account? <a class="text-primary hover:text-secondary transition-colors font-semibold" href="login.html">Log In</a>`;
+            }
+            
+            // Push address bar quietly without reload
+            window.history.replaceState(null, '', 'signup.html');
+        } else {
+            if (signupFields) signupFields.classList.add('hidden');
+            if (nameField) nameField.required = false;
+            if (forgotPass) forgotPass.classList.remove('invisible');
+            if (submitBtn) submitBtn.innerText = 'Log In to Story Spark';
+            if (googleBtnText) googleBtnText.innerText = 'Sign in with Google';
+            
+            // Tabs styling
+            if (tabSignin) tabSignin.className = "flex-1 pb-3 font-label-caps text-label-caps text-primary border-b-2 border-primary transition-all duration-300";
+            if (tabSignup) tabSignup.className = "flex-1 pb-3 font-label-caps text-label-caps text-on-surface-variant border-b-2 border-transparent hover:text-on-surface transition-all duration-300";
+            
+            // Bottom link toggle content
+            if (navToggle) {
+                navToggle.innerHTML = `Don't have an account? <a class="text-primary hover:text-secondary transition-colors font-semibold" href="signup.html">Sign Up</a>`;
+            }
+            
+            // Push address bar quietly without reload
+            window.history.replaceState(null, '', 'login.html');
+        }
+
+        form.classList.remove('form-transitioning');
+    }, 380);
+}
+
+/* ── Legal Modals Data & Triggers ── */
+const LEGAL_CONTENT = {
+    terms: {
+        title: 'Terms of Service',
+        text: `
+            <p class="mb-3">Welcome to Story Spark AI. By accessing or using our platform, you agree to comply with and be bound by these Terms of Service.</p>
+            <p class="mb-3"><strong>1. Use of Services:</strong> You must be at least 13 years old to use this platform. You agree to use the services only for lawful purposes and in accordance with these Terms.</p>
+            <p class="mb-3"><strong>2. User Accounts:</strong> You are responsible for safeguarding the credentials you use to access Story Spark AI and for any activities or actions under your account.</p>
+            <p class="mb-3"><strong>3. Content Generation:</strong> Story Spark AI generates stories and content using advanced AI algorithms. We do not guarantee the completeness, accuracy, or suitability of generated stories for any specific purpose.</p>
+            <p><strong>4. Intellectual Property:</strong> All software, branding, technology, and designs related to Story Spark AI remain the exclusive intellectual property of Story Spark AI.</p>
+        `
+    },
+    privacy: {
+        title: 'Privacy Policy',
+        text: `
+            <p class="mb-3">At Story Spark AI, we value your privacy. This Privacy Policy details how we collect, use, and protect your personal information.</p>
+            <p class="mb-3"><strong>1. Data Collection:</strong> We collect details you share directly with us, such as email addresses, account details, and generation prompts when creating stories.</p>
+            <p class="mb-3"><strong>2. Data Usage:</strong> We utilize your information to support account authorization, secure login, personalize recommendations, and refine our AI generation systems.</p>
+            <p class="mb-3"><strong>3. Cookies:</strong> Cookies are used to safely retain your login session token and custom styling preferences.</p>
+            <p><strong>4. Security:</strong> We enforce high-grade security protocols to protect your personal details. We do not sell or lease user information to third-party advertisers.</p>
+        `
+    }
+};
+
+function openLegalModal(type) {
+    const modal = document.getElementById('legal-modal');
+    const title = document.getElementById('legal-modal-title');
+    const text = document.getElementById('legal-modal-text');
+    
+    if (modal && title && text && LEGAL_CONTENT[type]) {
+        title.innerText = LEGAL_CONTENT[type].title;
+        text.innerHTML = LEGAL_CONTENT[type].text;
+        modal.classList.add('show');
+    }
+}
+
+function closeLegalModal() {
+    const modal = document.getElementById('legal-modal');
+    if (modal) modal.classList.remove('show');
+}
+
+/* ── Password Visibility Toggling ── */
+function togglePasswordVisibility() {
+    const field = document.getElementById('password-field');
+    const icon = document.getElementById('eye-icon');
+    if (!field || !icon) return;
+
+    if (field.type === 'password') {
+        field.type = 'text';
+        icon.innerText = 'visibility_off';
+    } else {
+        field.type = 'password';
+        icon.innerText = 'visibility';
+    }
+}
+
+/* ── Form Submission handling ── */
+function handleFormSubmit(e) {
+    e.preventDefault();
+    const emailField = document.getElementById('email-field');
+    const nameField = document.getElementById('name-field');
+    if (!emailField) return;
+
+    const email = emailField.value;
+    if (currentMode === 'signin') {
+        alert('Welcome back! Successfully logged in as ' + email);
+    } else {
+        const name = nameField ? nameField.value : '';
+        alert('Welcome ' + name + '! Account created successfully for ' + email);
+        toggleAuthMode('signin');
+    }
+}
+
+/* ── Google Identity Services (GIS) Sign-In Flows ── */
+function initGoogleAuth() {
+    if (typeof google === 'undefined' || !google.accounts) {
+        console.warn('Google Identity Services library is not loaded yet.');
+        return;
+    }
+
+    google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleGoogleCredentialResponse,
+        auto_select: false,
+        cancel_on_tap_outside: true,
+    });
+}
+
+function decodeJwt(token) {
+    try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        return JSON.parse(atob(base64));
+    } catch (e) {
+        return null;
+    }
+}
+
+function handleGoogleCredentialResponse(response) {
+    const user = decodeJwt(response.credential);
+    if (user) {
+        const status = document.getElementById('google-auth-status');
+        const avatar = document.getElementById('google-user-avatar');
+        const name = document.getElementById('google-user-name');
+        const email = document.getElementById('google-user-email');
+        const googleBtnText = document.getElementById('google-btn-text');
+
+        if (avatar) avatar.src = user.picture || '';
+        if (name) name.innerText = user.name || 'Google User';
+        if (email) email.innerText = user.email || '';
+        if (status) status.classList.remove('hidden');
+
+        if (googleBtnText) {
+            googleBtnText.innerText = `Signed in as ${user.given_name || user.name}`;
+        }
+    }
+}
+
+function handleGoogleSignIn() {
+    if (GOOGLE_CLIENT_ID === 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com') {
+        alert(
+            'Google Sign-In requires a Client ID.\n\n' +
+            'To set it up:\n' +
+            '1. Go to https://console.cloud.google.com/apis/credentials\n' +
+            '2. Create an OAuth 2.0 Client ID (Web application)\n' +
+            '3. Add http://localhost:8000 to Authorized JavaScript origins\n' +
+            '4. Copy the Client ID and replace YOUR_GOOGLE_CLIENT_ID in the HTML file'
+        );
+        return;
+    }
+
+    if (typeof google === 'undefined' || !google.accounts) {
+        alert('Google Sign-In library is still loading. Please try again in a moment.');
+        return;
+    }
+
+    google.accounts.id.prompt((notification) => {
+        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+            const container = document.createElement('div');
+            container.style.position = 'fixed';
+            container.style.top = '50%';
+            container.style.left = '50%';
+            container.style.transform = 'translate(-50%, -50%)';
+            container.style.zIndex = '9999';
+            container.style.background = 'rgba(0,0,0,0.85)';
+            container.style.padding = '32px';
+            container.style.borderRadius = '16px';
+            container.style.border = '1px solid rgba(255,255,255,0.1)';
+            container.id = 'google-popup-fallback';
+            document.body.appendChild(container);
+
+            google.accounts.id.renderButton(container, {
+                theme: 'filled_black',
+                size: 'large',
+                width: 300,
+                text: 'signin_with',
+            });
+        }
+    });
+}

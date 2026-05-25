@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
-// import TopHeaderComponent from "../top_header/top_header.component";
+import { useLocation } from "react-router-dom";
+import NavListComponent from "../hero/nav_list.component";
 import FooterComponent from "../footer/footer.component";
 
 interface RootLayoutProps {
@@ -7,12 +8,16 @@ interface RootLayoutProps {
 }
 
 const RootLayout: React.FC<RootLayoutProps> = ({ children }) => {
+  const { pathname } = useLocation();
+  const hideHeader = pathname === "/login";
+  const hideFooter = pathname === "/login" || pathname === "/signup";
+
   return (
-    <>
-      {/* <TopHeaderComponent /> */}
-      <div className="min-h-screen">{children}</div>
-      <FooterComponent />
-    </>
+    <div className="flex flex-col min-h-screen">
+      {!hideHeader && <NavListComponent />}
+      <div className="flex-grow">{children}</div>
+      {!hideFooter && <FooterComponent />}
+    </div>
   );
 };
 

@@ -62,7 +62,7 @@ const PaginationComponent: React.FC<PaginationProps> = ({
         return (
           <span
             key={`ellipsis-${index}`}
-            className="relative inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500"
+            className="relative inline-flex items-center px-3 py-2 text-sm font-medium text-slate-500"
           >
             ...
           </span>
@@ -75,8 +75,8 @@ const PaginationComponent: React.FC<PaginationProps> = ({
           onClick={() => handlePageChange(pageNum as number)}
           className={`!rounded-button relative inline-flex items-center px-3 py-1 border text-sm font-medium transition-colors ${
             current === pageNum
-              ? "border-custom bg-custom text-white"
-              : "border-gray-700 text-gray-400 hover:bg-gray-800 hover:text-white"
+              ? "border-blue-500 bg-blue-600 text-white shadow-md"
+              : "border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white"
           }`}
         >
           {pageNum}
@@ -88,30 +88,30 @@ const PaginationComponent: React.FC<PaginationProps> = ({
   return (
     <div>
       <div className="flex items-center justify-between">
-        <div className="flex-1 text-sm text-gray-400">
-          Showing <span className="font-medium text-white">{startItem}</span> to
-          <span className="font-medium text-white"> {endItem}</span> of
-          <span className="font-medium text-white"> {total}</span> results
+        <div className="flex-1 text-sm text-slate-400">
+          Showing <span className="font-medium">{startItem}</span> to
+          <span className="font-medium"> {endItem}</span> of
+          <span className="font-medium"> {total}</span> results
         </div>
         <div className="flex items-center space-x-2">
           <button
-            className="!rounded-button inline-flex items-center px-3 py-1 border border-gray-700 text-sm font-medium text-gray-400 hover:bg-gray-800 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="!rounded-button inline-flex items-center px-3 py-1 border border-slate-700 bg-slate-800 text-sm font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-slate-800 disabled:hover:text-slate-300"
             disabled={current === 1}
             onClick={() => handlePageChange(current - 1)}
           >
-            <i className="fas fa-chevron-left text-xs mr-2"></i>
+            <i className="fas fa-chevron-left text-xs mr-2 opacity-70"></i>
             Previous
           </button>
           <span className="relative z-0 inline-flex space-x-1">
             {renderPageNumbers()}
           </span>
           <button
-            className="!rounded-button inline-flex items-center px-3 py-1 border border-gray-700 text-sm font-medium text-gray-400 hover:bg-gray-800 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="!rounded-button inline-flex items-center px-3 py-1 border border-slate-700 bg-slate-800 text-sm font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-slate-800 disabled:hover:text-slate-300"
             disabled={current === totalPages}
             onClick={() => handlePageChange(current + 1)}
           >
             Next
-            <i className="fas fa-chevron-right text-xs ml-2"></i>
+            <i className="fas fa-chevron-right text-xs ml-2 opacity-70"></i>
           </button>
         </div>
       </div>

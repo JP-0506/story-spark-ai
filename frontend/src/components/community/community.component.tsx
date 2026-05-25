@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import GenreCard from './genre_card.component';
-import NavListComponent from '../hero/nav_list.component';
 import { isLoggedIn } from '../../services/auth.service';
 import { genres, featuredWriters, resources, stats } from './community.data';
 
@@ -10,10 +9,11 @@ const CommunityComponent: React.FC = () => {
 
   return (
     <div className="gradient-bg min-h-screen text-white">
-      <NavListComponent />
-      
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 overflow-hidden">
+      <section 
+        className="relative pb-20 overflow-hidden"
+        style={{ paddingTop: 'calc(var(--header-height) + 8rem)' }}
+      >
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-blue-600/10 rounded-full blur-[120px] -z-10"></div>
         
         <div className="max-w-7xl mx-auto px-6 text-center">
@@ -40,7 +40,7 @@ const CommunityComponent: React.FC = () => {
                 JOIN DISCORD
               </button>
             </a>
-            <Link to="/community#guidelines" className="w-full sm:w-auto">
+            <Link to="/guidelines" className="w-full sm:w-auto">
               <button className="w-full !rounded-button bg-transparent border border-white/20 hover:bg-white/5 text-white px-10 py-4 font-bold transition-all cursor-pointer">
                 VIEW GUIDELINES
               </button>
@@ -59,7 +59,7 @@ const CommunityComponent: React.FC = () => {
               Each hub offers specific AI prompt templates and discussion boards.
             </p>
           </div>
-          <Link to="/community/genres" className="group flex items-center text-blue-400 font-semibold transition-all">
+          <Link to="/community" className="group flex items-center text-blue-400 font-semibold transition-all">
             <span className="underline underline-offset-8 decoration-blue-500/30 group-hover:decoration-blue-500 transition-all">VIEW ALL GENRES</span>
             <i className="fa-solid fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
           </Link>
@@ -106,14 +106,16 @@ const CommunityComponent: React.FC = () => {
       <section className="max-w-7xl mx-auto px-6 py-20">
         <div className="flex items-center justify-between mb-12">
           <h2 className="text-3xl font-bold">Writing Resources</h2>
-          <button className="!rounded-button text-sm font-semibold px-6 py-2 bg-white/5 border border-white/10 hover:bg-white/10 transition-colors cursor-pointer">
-            BROWSE ALL
-          </button>
+          <Link to="/resources">
+            <button className="!rounded-button text-sm font-semibold px-6 py-2 bg-white/5 border border-white/10 hover:bg-white/10 transition-colors cursor-pointer">
+              BROWSE ALL
+            </button>
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {resources.map((resource, idx) => (
-            <div key={idx} className="p-8 rounded-2xl bg-slate-900/50 border border-white/5 hover:border-blue-500/30 transition-all group cursor-pointer">
+            <Link key={idx} to={`/resources/${resource.slug}`} className="p-8 rounded-2xl bg-slate-900/50 border border-white/5 hover:border-blue-500/30 transition-all group cursor-pointer block text-left">
               <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 mb-6 group-hover:scale-110 transition-transform">
                 <i className={`fa-solid ${resource.icon} text-xl`}></i>
               </div>
@@ -126,7 +128,7 @@ const CommunityComponent: React.FC = () => {
               <div className="flex items-center text-gray-500 text-sm font-medium">
                 <i className="fa-regular fa-clock mr-2 text-blue-400"></i> {resource.readTime} read
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </section>

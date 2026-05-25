@@ -9,6 +9,8 @@ import PricingComponent from "./pricing/pricing.component";
 import WriterFeedbackComponent from "./writer_feedback/writer_feedback.component";
 import StartWritingComponent from "./start_writing/start_writing.component";
 import { isLoggedIn } from "../../services/auth.service";
+import Contactus from "../contactus/contactus"
+
 
 const HomeComponent = () => {
   const isLogin = isLoggedIn();
@@ -32,6 +34,7 @@ const HomeComponent = () => {
       <WriterFeedbackComponent />
       <PricingComponent />
       <StartWritingComponent />
+      <Contactus/>
     </>
   );
 };

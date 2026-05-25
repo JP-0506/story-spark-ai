@@ -2,7 +2,7 @@ import { useState } from "react";
 import logo from "../../assets/logo.png";
 
 const TopHeaderComponent = () => {
-  const [showNotification, setShowNotification] = useState<boolean>(false);
+  const [, setShowNotification] = useState<boolean>(false);
   return (
     <div className="sticky top-0 z-50">
       <div className="relative z-10 mx-auto max-w-8xl px-6 py-4 gradient-bg">
@@ -44,7 +44,7 @@ const TopHeaderComponent = () => {
                 <div>
                   <button
                     type="button"
-                    className="!rounded-button p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none"
+                    className="!rounded-button p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none cursor-pointer"
                     onClick={() => setShowNotification(true)}
                   >
                     <i className="fa-solid fa-bell"></i>

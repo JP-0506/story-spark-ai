@@ -8,6 +8,7 @@ import { JwtHalers } from "../../../utils/jwt.helper";
 import config from "../../../config";
 import ApiError from "../../../errors/api_error";
 import { IUser } from "../user/user.interface";
+import { OTPModel } from "../verify_email/otp.model";
 
 const googleClient = new OAuth2Client(config.google_client_id);
 
@@ -44,13 +45,52 @@ const login = async (payload: AuthModel) => {
   };
 };
 
-const register = async (payload: IUser) => {
-  const { email: userEmail } = payload;
+const register = async (payload: IUser & { verificationToken?: string }) => {
+  const { email: userEmail, verificationToken } = payload;
+  
+  // FIX #4: Verify that email was verified via OTP before allowing registration
+  if (!verificationToken) {
+    throw new ApiError(
+      httpStatus.UNAUTHORIZED,
+      "Email verification required. Please verify your email with OTP before registering."
+    );
+  }
+
+  // Check if verification token is valid
+  const otpRecord = await OTPModel.findOne({
+    email: userEmail,
+    isVerified: true,
+    verificationToken,
+  });
+
+  if (!otpRecord) {
+    throw new ApiError(
+      httpStatus.UNAUTHORIZED,
+      "Invalid or expired verification token. Please verify your email again."
+    );
+  }
+
+  // Check if verification token has expired
+  if (
+    !otpRecord.verificationTokenExpires ||
+    new Date() > otpRecord.verificationTokenExpires
+  ) {
+    throw new ApiError(
+      httpStatus.UNAUTHORIZED,
+      "Verification token has expired. Please verify your email again."
+    );
+  }
+
   const isExistUser = await User.findOne({ email: userEmail });
   if (isExistUser) {
     throw new ApiError(httpStatus.NOT_FOUND, "User already exist!");
   }
+  
   const result = await User.create(payload);
+  
+  // Clean up OTP record after successful registration
+  await OTPModel.deleteOne({ email: userEmail });
+  
   const { _id, email, role, subscriptionType, name, postsCount } = result;
   const accessToken = JwtHalers.createToken(
     { _id, email, role, subscriptionType, name, postsCount },

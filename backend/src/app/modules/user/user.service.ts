@@ -110,6 +110,51 @@ const getProfileInfo = async (token: ITokenPayload) => {
   return user;
 };
 
+const toggleFollow = async (token: ITokenPayload, authorId: string) => {
+  const currentUser = await User.findOne({ email: token.email });
+  if (!currentUser) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "User not found!");
+  }
+
+  const author = await User.findById(authorId);
+  if (!author) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Author not found!");
+  }
+
+  const isFollowing = currentUser.following.includes(author._id);
+
+  if (isFollowing) {
+    // Unfollow
+    await User.findByIdAndUpdate(currentUser._id, {
+      $pull: { following: author._id },
+    });
+    await User.findByIdAndUpdate(author._id, {
+      $pull: { followers: currentUser._id },
+    });
+    return { isFollowing: false };
+  } else {
+    // Follow
+    await User.findByIdAndUpdate(currentUser._id, {
+      $addToSet: { following: author._id },
+    });
+    await User.findByIdAndUpdate(author._id, {
+      $addToSet: { followers: currentUser._id },
+    });
+    return { isFollowing: true };
+  }
+};
+
+const getFollowStatus = async (token: ITokenPayload, authorId: string) => {
+  const currentUser = await User.findOne({ email: token.email });
+  if (!currentUser) {
+    return { isFollowing: false };
+  }
+  const isFollowing = currentUser.following.some(
+    (id) => id.toString() === authorId
+  );
+  return { isFollowing };
+};
+
 export const UserService = {
   getAllUsers,
   getUser,
@@ -119,4 +164,6 @@ export const UserService = {
   applyForWriter,
   approveWriterApplication,
   getAllWriterApplicationUsers,
+  toggleFollow,
+  getFollowStatus,
 };

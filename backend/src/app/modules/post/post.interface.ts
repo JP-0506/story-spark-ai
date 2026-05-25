@@ -26,6 +26,7 @@ export interface IPost extends IPostPayload {
   attachments?: string[];
   comments?: Types.ObjectId[];
   reactions?: Types.ObjectId[];
+  bookmarks?: Types.ObjectId[];
 }
 
 export type PostModel = Model<IPost, object>;

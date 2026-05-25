@@ -46,6 +46,7 @@ const PostsPerMonthChart: FC<Props> = ({ perMonth }) => {
 
   const options = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: "top" as const,
@@ -58,7 +59,7 @@ const PostsPerMonthChart: FC<Props> = ({ perMonth }) => {
   };
 
   return (
-    <div style={{ position: "relative", height: "300px", width: "100%" }} className="bg-blue-500/10 shadow-md rounded-lg p-4">
+    <div style={{ position: "relative", height: "300px", width: "100%" }} className="min-w-0 overflow-hidden rounded-lg bg-blue-500/10 p-4 shadow-md">
       <Line data={chartData} options={options} key={JSON.stringify(perMonth)} />
     </div>
   );

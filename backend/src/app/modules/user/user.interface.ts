@@ -9,8 +9,8 @@ export interface IUser {
   status: string;
   subscriptionType: SubscriptionType;
   postsCount: number;
-  followers: string;
-  following: string;
+  followers: Types.ObjectId[];
+  following: Types.ObjectId[];
   profile: {
     avatar: string;
     bio: string;

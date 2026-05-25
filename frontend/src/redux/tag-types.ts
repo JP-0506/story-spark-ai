@@ -5,6 +5,7 @@ export enum tagTypes {
   post = "post",
   comment = "comment",
   notification = "notification",
+  bookmark = "bookmark",
 }
 
 export const tagTypesList: string[] = [
@@ -14,4 +15,5 @@ export const tagTypesList: string[] = [
   tagTypes.post,
   tagTypes.comment,
   tagTypes.notification,
+  tagTypes.bookmark,
 ];

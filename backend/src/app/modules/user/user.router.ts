@@ -54,4 +54,28 @@ router.post(
   UserController.approveWriterApplication
 );
 
+// Follow / Unfollow
+router.post(
+  "/follow/:authorId",
+  auth(
+    ENUM_USER_ROLE.USER,
+    ENUM_USER_ROLE.WRITER,
+    ENUM_USER_ROLE.ADMIN,
+    ENUM_USER_ROLE.SUPER_ADMIN
+  ),
+  UserController.toggleFollow
+);
+
+// Get Follow Status
+router.get(
+  "/follow-status/:authorId",
+  auth(
+    ENUM_USER_ROLE.USER,
+    ENUM_USER_ROLE.WRITER,
+    ENUM_USER_ROLE.ADMIN,
+    ENUM_USER_ROLE.SUPER_ADMIN
+  ),
+  UserController.getFollowStatus
+);
+
 export const UserRouter = router;

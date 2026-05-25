@@ -79,11 +79,24 @@ const getSinglePost = catchAsync(async (req: Request, res: Response) => {
 
 const getPostsByTag = catchAsync(async (req: Request, res: Response) => {
   const tag = routeParam(req.params.tag);
-  const result = await PostService.getPostsByTag(tag);
+  const excludeId = req.query.excludeId as string | undefined;
+  const result = await PostService.getPostsByTag(tag, excludeId);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: "Post fetched successfully!",
+    data: result,
+  });
+});
+
+const toggleBookmark = catchAsync(async (req: Request, res: Response) => {
+  const id = routeParam(req.params.id);
+  const token = await getToken(req);
+  const result = await PostService.toggleBookmark(id, token);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: result.message,
     data: result,
   });
 });
@@ -96,4 +109,5 @@ export const PostController = {
   doFeaturedPosts,
   getSinglePost,
   getPostsByTag,
+  toggleBookmark,
 };

@@ -12,7 +12,7 @@ interface IGenreCardProps {
 
 const GenreCard: React.FC<IGenreCardProps> = ({ title, description, icon, count, color, isLogin }) => {
   return (
-    <div className="group relative p-8 rounded-2xl bg-slate-900/50 border border-white/10 hover:border-blue-500/50 transition-all duration-300 hover:-translate-y-2 overflow-hidden">
+    <div className="group relative p-8 rounded-2xl bg-slate-900/50 border border-white/10 hover:border-blue-500/50 hover:bg-slate-900/80 transition-all duration-300 hover:-translate-y-2 overflow-hidden shadow-lg hover:shadow-blue-500/10">
       {/* Background Glow */}
       <div className={`absolute -right-4 -top-4 w-24 h-24 ${color} blur-3xl opacity-10 group-hover:opacity-20 transition-opacity`}></div>
       

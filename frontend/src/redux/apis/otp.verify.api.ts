@@ -12,7 +12,15 @@ const otpVerifyApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: [tagTypes.otp],
     }),
+    verifyOtp: build.mutation({
+      query: (data) => ({
+        url: `/${OTP_URL}/verify-otp`,
+        method: "POST",
+        data: data,
+      }),
+      invalidatesTags: [tagTypes.otp],
+    }),
   }),
 });
 
-export const { useEmailVerifyMutation } = otpVerifyApi;
+export const { useEmailVerifyMutation, useVerifyOtpMutation } = otpVerifyApi;

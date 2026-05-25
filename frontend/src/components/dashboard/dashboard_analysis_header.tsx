@@ -2,28 +2,57 @@ import React from "react";
 import { DashboardAnalysis } from "../../models/analysis";
 
 const DashboardAnalysisHeader: React.FC<{ data: DashboardAnalysis }> = ({ data }) => {
-  return (
-    <div className="min-h-screen bg-slate-800 p-6">
-      <h1 className="text-3xl font-bold text-gray-400 mb-8">
-        Dashboard Analysis Header Overview
-      </h1>
+  const totalSubs =
+    data.subscriptionTypes.free +
+    data.subscriptionTypes.pro +
+    data.subscriptionTypes.premium;
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-blue-500/10 rounded-lg shadow p-6">
-          <div className="flex items-center justify-between">
+  const maxPostCount = Math.max(
+    ...(Object.values(data.posts.perMonth) as number[])
+  );
+
+  const topicColors = [
+    "bg-blue-500/15 text-blue-400 border-blue-500/20",
+    "bg-violet-500/15 text-violet-400 border-violet-500/20",
+    "bg-emerald-500/15 text-emerald-400 border-emerald-500/20",
+    "bg-amber-500/15 text-amber-400 border-amber-500/20",
+    "bg-rose-500/15 text-rose-400 border-rose-500/20",
+    "bg-cyan-500/15 text-cyan-400 border-cyan-500/20",
+  ];
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-black text-white tracking-tight">
+            Analysis Overview
+          </h1>
+          <p className="text-slate-500 text-sm mt-0.5">
+            Real-time platform metrics and insights
+          </p>
+        </div>
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="text-[10px] uppercase tracking-widest text-emerald-300 font-semibold">
+            Live Data
+          </span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="relative overflow-hidden rounded-2xl bg-white/[0.03] border border-blue-500/15 p-5 hover:-translate-y-0.5 transition-transform duration-200">
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/40 to-transparent" />
+          <div className="flex items-start justify-between mb-3">
             <div>
-              <p className="text-gray-400 text-sm font-medium">Total Users</p>
-              <h3 className="text-2xl font-bold text-gray-300">
+              <p className="text-slate-500 text-xs uppercase tracking-wider font-medium mb-1">
+                Total Users
+              </p>
+              <h3 className="text-3xl font-black text-white tracking-tight">
                 {data.users.total}
               </h3>
             </div>
-            <div className="bg-blue-300 p-3 rounded-full">
-              <svg
-                className="w-6 h-6 text-blue-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+            <div className="w-9 h-9 rounded-xl bg-blue-500/12 border border-blue-500/20 flex items-center justify-center">
+              <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -33,35 +62,31 @@ const DashboardAnalysisHeader: React.FC<{ data: DashboardAnalysis }> = ({ data }
               </svg>
             </div>
           </div>
-          <div className="mt-4 flex space-x-4">
+          <div className="flex gap-4 pt-3 border-t border-white/[0.05]">
             <div>
-              <p className="text-indigo-500 text-xs">Active</p>
-              <p className="text-green-600 font-medium">{data.users.active}</p>
+              <p className="text-[10px] text-slate-600 uppercase tracking-wider mb-0.5">Active</p>
+              <p className="text-sm font-bold text-emerald-400">{data.users.active}</p>
             </div>
             <div>
-              <p className="text-indigo-500 text-xs">Writers</p>
-              <p className="text-purple-600 font-medium">
-                {data.users.writers}
-              </p>
+              <p className="text-[10px] text-slate-600 uppercase tracking-wider mb-0.5">Writers</p>
+              <p className="text-sm font-bold text-violet-400">{data.users.writers}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-blue-500/10 rounded-lg shadow p-6">
-          <div className="flex items-center justify-between">
+        <div className="relative overflow-hidden rounded-2xl bg-white/[0.03] border border-violet-500/15 p-5 hover:-translate-y-0.5 transition-transform duration-200">
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/40 to-transparent" />
+          <div className="flex items-start justify-between mb-3">
             <div>
-              <p className="text-gray-400 text-sm font-medium">Total Posts</p>
-              <h3 className="text-2xl font-bold text-gray-300">
+              <p className="text-slate-500 text-xs uppercase tracking-wider font-medium mb-1">
+                Total Posts
+              </p>
+              <h3 className="text-3xl font-black text-white tracking-tight">
                 {data.posts.total}
               </h3>
             </div>
-            <div className="bg-green-300 p-3 rounded-full">
-              <svg
-                className="w-6 h-6 text-green-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+            <div className="w-9 h-9 rounded-xl bg-violet-500/12 border border-violet-500/20 flex items-center justify-center">
+              <svg className="w-4 h-4 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -71,39 +96,29 @@ const DashboardAnalysisHeader: React.FC<{ data: DashboardAnalysis }> = ({ data }
               </svg>
             </div>
           </div>
-          <div className="mt-4 flex space-x-4">
+          <div className="flex gap-4 pt-3 border-t border-white/[0.05]">
             <div>
-              <p className="text-indigo-500 text-xs">Published</p>
-              <p className="text-blue-600 font-medium">
-                {data.posts.published}
-              </p>
+              <p className="text-[10px] text-slate-600 uppercase tracking-wider mb-0.5">Published</p>
+              <p className="text-sm font-bold text-blue-400">{data.posts.published}</p>
             </div>
             <div>
-              <p className="text-indigo-500 text-xs">Featured</p>
-              <p className="text-yellow-600 font-medium">
-                {data.posts.featured}
-              </p>
+              <p className="text-[10px] text-slate-600 uppercase tracking-wider mb-0.5">Featured</p>
+              <p className="text-sm font-bold text-amber-400">{data.posts.featured}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-blue-500/10 rounded-lg shadow p-6">
-          <div className="flex items-center justify-between">
+        <div className="relative overflow-hidden rounded-2xl bg-white/[0.03] border border-emerald-500/15 p-5 hover:-translate-y-0.5 transition-transform duration-200">
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-500/40 to-transparent" />
+          <div className="flex items-start justify-between mb-3">
             <div>
-              <p className="text-gray-400 text-sm font-medium">Subscriptions</p>
-              <h3 className="text-2xl font-bold text-gray-300">
-                {data.subscriptionTypes.free +
-                  data.subscriptionTypes.pro +
-                  data.subscriptionTypes.premium}
-              </h3>
+              <p className="text-slate-500 text-xs uppercase tracking-wider font-medium mb-1">
+                Subscriptions
+              </p>
+              <h3 className="text-3xl font-black text-white tracking-tight">{totalSubs}</h3>
             </div>
-            <div className="bg-purple-300 p-3 rounded-full">
-              <svg
-                className="w-6 h-6 text-purple-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+            <div className="w-9 h-9 rounded-xl bg-emerald-500/12 border border-emerald-500/20 flex items-center justify-center">
+              <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -113,45 +128,35 @@ const DashboardAnalysisHeader: React.FC<{ data: DashboardAnalysis }> = ({ data }
               </svg>
             </div>
           </div>
-          <div className="mt-4 flex space-x-4">
+          <div className="flex gap-3 pt-3 border-t border-white/[0.05]">
             <div>
-              <p className="text-indigo-500 text-xs">Free</p>
-              <p className="text-pink-600 font-medium">
-                {data.subscriptionTypes.free}
-              </p>
+              <p className="text-[10px] text-slate-600 uppercase tracking-wider mb-0.5">Free</p>
+              <p className="text-sm font-bold text-slate-300">{data.subscriptionTypes.free}</p>
             </div>
             <div>
-              <p className="text-indigo-500 text-xs">Pro</p>
-              <p className="text-blue-600 font-medium">
-                {data.subscriptionTypes.pro}
-              </p>
+              <p className="text-[10px] text-slate-600 uppercase tracking-wider mb-0.5">Pro</p>
+              <p className="text-sm font-bold text-blue-400">{data.subscriptionTypes.pro}</p>
             </div>
             <div>
-              <p className="text-indigo-500 text-xs">Premium</p>
-              <p className="text-yellow-600 font-medium">
-                {data.subscriptionTypes.premium}
-              </p>
+              <p className="text-[10px] text-slate-600 uppercase tracking-wider mb-0.5">Premium</p>
+              <p className="text-sm font-bold text-amber-400">{data.subscriptionTypes.premium}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-blue-500/10 rounded-lg shadow p-6">
-          <div className="flex items-center justify-between">
+        <div className="relative overflow-hidden rounded-2xl bg-white/[0.03] border border-amber-500/15 p-5 hover:-translate-y-0.5 transition-transform duration-200">
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
+          <div className="flex items-start justify-between mb-3">
             <div>
-              <p className="text-gray-400 text-sm font-medium">
+              <p className="text-slate-500 text-xs uppercase tracking-wider font-medium mb-1">
                 Writer Applications
               </p>
-              <h3 className="text-2xl font-bold text-gray-300">
+              <h3 className="text-3xl font-black text-white tracking-tight">
                 {data.users.applyForWriter}
               </h3>
             </div>
-            <div className="bg-yellow-300 p-3 rounded-full">
-              <svg
-                className="w-6 h-6 text-yellow-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+            <div className="w-9 h-9 rounded-xl bg-amber-500/12 border border-amber-500/20 flex items-center justify-center">
+              <svg className="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -163,113 +168,112 @@ const DashboardAnalysisHeader: React.FC<{ data: DashboardAnalysis }> = ({ data }
           </div>
           <div className="mt-4">
             <div className="h-2 bg-indigo-200 rounded-full">
-              <div
-                className="h-2 bg-yellow-500 rounded-full"
+              <div className="h-2 bg-yellow-500 rounded-full"
                 style={{
                   width: `${
                     (data.users.applyForWriter / data.users.total) * 100
                   }%`,
-                }}
-              ></div>
+                }}>
+              </div>
             </div>
-            <p className="text-indigo-500 text-xs mt-2">
-              {((data.users.applyForWriter / data.users.total) * 100).toFixed(
-                1
-              )}
-              % of total users
+            <p className="text-[10px] text-slate-600">
+              {((data.users.applyForWriter / data.users.total) * 100).toFixed(1)}% of total users
             </p>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-blue-500/10 rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-400 mb-4">
-            Posts per Month
-          </h3>
-          <div className="space-y-4">
-            {Object.entries(data.posts.perMonth).map(([month, count]) => (
-              <div key={month} className="flex items-center">
-                <p className="w-24 text-indigo-500 text-sm">{month}</p>
-                <div className="flex-1 bg-gray-200 h-4 rounded-full">
-                  <div
-                    className="bg-blue-500 h-4 rounded-full"
-                    style={{
-                      width: `${
-                        ((count as number) /
-                          Math.max(...(Object.values(data.posts.perMonth) as number[]))) *
-                        100
-                      }%`,
-                    }}
-                  ></div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div className="rounded-2xl bg-white/[0.02] border border-white/[0.06] p-5">
+          <div className="flex items-center gap-2.5 mb-5">
+            <div className="w-8 h-8 rounded-xl bg-blue-500/10 border border-blue-500/15 flex items-center justify-center">
+              <i className="fas fa-chart-bar text-blue-400 text-xs" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-white">Posts per Month</h3>
+              <p className="text-[10px] text-slate-600">Publication frequency trend</p>
+            </div>
+          </div>
+          <div className="space-y-3">
+            {Object.entries(data.posts.perMonth).map(([month, count]) => {
+              const pct = ((count as number) / maxPostCount) * 100;
+              return (
+                <div key={month} className="flex items-center gap-3">
+                  <p className="w-20 text-xs text-slate-500 font-mono shrink-0">{month}</p>
+                  <div className="flex-1 bg-white/[0.05] h-2 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full transition-all duration-700"
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                  <p className="w-8 text-right text-xs font-bold text-slate-300">
+                    {count as number}
+                  </p>
                 </div>
-                <p className="w-12 text-right text-indigo-400 font-medium">
-                  {count as number}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
-        <div className="bg-blue-500/10 rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-300 mb-4">
-            Topics Distribution
-          </h3>
-          <div className="grid grid-cols-2 gap-4">
-            {Object.entries(data.posts.topics).map(([topic, count]) => (
-              <div key={topic} className="flex items-center">
-                <div className="w-8 h-8 rounded-full bg-purple-300 flex items-center justify-center mr-3">
-                  <span className="text-purple-800 text-xs font-bold">
-                    {(((count as number) / data.posts.total) * 100).toFixed(0)}%
-                  </span>
+        <div className="rounded-2xl bg-white/[0.02] border border-white/[0.06] p-5">
+          <div className="flex items-center gap-2.5 mb-5">
+            <div className="w-8 h-8 rounded-xl bg-violet-500/10 border border-violet-500/15 flex items-center justify-center">
+              <i className="fas fa-tags text-violet-400 text-xs" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-white">Topics Distribution</h3>
+              <p className="text-[10px] text-slate-600">Content by category</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            {Object.entries(data.posts.topics).map(([topic, count], i) => {
+              const pct = (((count as number) / data.posts.total) * 100).toFixed(0);
+              const colorClass = topicColors[i % topicColors.length];
+              return (
+                <div
+                  key={topic}
+                  className={`flex items-center gap-2.5 p-3 rounded-xl border ${colorClass}`}
+                >
+                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-current/10 shrink-0">
+                    <span className="text-xs font-black">{pct}%</span>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-white text-xs font-semibold truncate">{topic}</p>
+                    <p className="text-[10px] text-slate-500">{count as number} posts</p>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <p className="text-gray-400 font-medium">{topic}</p>
-                  <p className="text-gray-300 text-sm">{count as number} posts</p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
 
-      <div className="bg-blue-500/10 rounded-lg shadow p-6 mt-6">
-        <h3 className="text-lg font-semibold text-gray-400 mb-4">
-          User Status Overview
-        </h3>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-          <div className="flex items-center p-4 bg-gray-50 rounded-lg">
-            <div className="p-3 bg-blue-100 rounded-full mr-4">
-              <svg
-                className="w-6 h-6 text-blue-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
+      <div className="rounded-2xl bg-white/[0.02] border border-white/[0.06] p-5">
+        <div className="flex items-center gap-2.5 mb-5">
+          <div className="w-8 h-8 rounded-xl bg-slate-500/10 border border-white/[0.08] flex items-center justify-center">
+            <i className="fas fa-user-shield text-slate-400 text-xs" />
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-white">User Status Overview</h3>
+            <p className="text-[10px] text-slate-600">Account status breakdown</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="flex items-center gap-3 p-4 rounded-xl bg-emerald-500/[0.06] border border-emerald-500/15 hover:bg-emerald-500/[0.09] transition-colors">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/20 flex items-center justify-center shrink-0">
+              <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
             <div>
-              <p className="text-gray-500 text-sm">Active Users</p>
-              <p className="text-2xl font-bold text-blue-600">
-                {data.users.active}
-              </p>
+              <p className="text-xs text-slate-500 mb-0.5">Active Users</p>
+              <p className="text-2xl font-black text-emerald-400">{data.users.active}</p>
             </div>
           </div>
 
-          <div className="flex items-center p-4 bg-gray-50 rounded-lg">
-            <div className="p-3 bg-gray-100 rounded-full mr-4">
-              <svg
-                className="w-6 h-6 text-gray-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+          <div className="flex items-center gap-3 p-4 rounded-xl bg-white/[0.03] border border-white/[0.07] hover:bg-white/[0.05] transition-colors">
+            <div className="w-10 h-10 rounded-xl bg-white/[0.06] border border-white/[0.10] flex items-center justify-center shrink-0">
+              <svg className="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -279,21 +283,14 @@ const DashboardAnalysisHeader: React.FC<{ data: DashboardAnalysis }> = ({ data }
               </svg>
             </div>
             <div>
-              <p className="text-gray-500 text-sm">Inactive Users</p>
-              <p className="text-2xl font-bold text-gray-600">
-                {data.users.inactive}
-              </p>
+              <p className="text-xs text-slate-500 mb-0.5">Inactive Users</p>
+              <p className="text-2xl font-black text-slate-400">{data.users.inactive}</p>
             </div>
           </div>
 
-          <div className="flex items-center p-4 bg-red-50 rounded-lg">
-            <div className="p-3 bg-red-100 rounded-full mr-4">
-              <svg
-                className="w-6 h-6 text-red-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+          <div className="flex items-center gap-3 p-4 rounded-xl bg-red-500/[0.05] border border-red-500/15 hover:bg-red-500/[0.08] transition-colors">
+            <div className="w-10 h-10 rounded-xl bg-red-500/12 border border-red-500/20 flex items-center justify-center shrink-0">
+              <svg className="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -303,10 +300,8 @@ const DashboardAnalysisHeader: React.FC<{ data: DashboardAnalysis }> = ({ data }
               </svg>
             </div>
             <div>
-              <p className="text-gray-500 text-sm">Blocked Users</p>
-              <p className="text-2xl font-bold text-red-600">
-                {data.users.blocked}
-              </p>
+              <p className="text-xs text-slate-500 mb-0.5">Blocked Users</p>
+              <p className="text-2xl font-black text-red-400">{data.users.blocked}</p>
             </div>
           </div>
         </div>

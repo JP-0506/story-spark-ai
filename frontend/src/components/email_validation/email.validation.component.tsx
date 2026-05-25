@@ -1,6 +1,5 @@
-import React, { useState } from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
-import toast, { Toaster } from "react-hot-toast";
+import React from "react";
+import { useForm } from "react-hook-form";
 import SSInput from "../ui-component/ss-input/ss-input";
 import SSButton from "../ui-component/ss-button/ss-button";
 
@@ -9,19 +8,27 @@ interface Inputs {
 }
 
 const EmailValidationComponent = () => {
-  const [isBusy, setIsBusy] = useState<boolean>(false);
-  const { register, handleSubmit, watch } = useForm<Inputs>();
+  const { register } = useForm<Inputs>();
 
   return (
-    <div className="h-screen bg-black flex flex-col items-center justify-center px-4">
-      <h1 className="absolute top-4 right-4 text-gray-400 hover:text-gray-100 cursor-pointer">
+    <div className="min-h-screen bg-slate-900 text-slate-100 flex items-center justify-center relative overflow-hidden px-4">
+      {/* Ambient glows */}
+      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-600/20 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-purple-600/20 rounded-full blur-[120px] pointer-events-none" />
+
+      <h1 className="absolute top-6 right-6 font-medium text-slate-400 hover:text-slate-200 transition-colors duration-200 cursor-pointer z-20">
         Sign Out
       </h1>
-      <h1 className="text-xl text-center whitespace-nowrap overflow-hidden text-ellipsis mb-4 text-gray-300">
-        Enter the verification code sent to{" "}
-        <span className="font-bold">demo1234sefc@gmail.com.</span>
-      </h1>
-      <div className="rounded-lg shadow-lg text-white space-y-6 w-96 p-6">
+      
+      <div className="bg-slate-800/60 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-8 shadow-2xl w-full max-w-md relative z-10">
+        <h2 className="text-3xl font-bold tracking-tight text-slate-200 mb-3 text-center">
+          Verify your email
+        </h2>
+        <p className="text-sm text-center text-slate-400 mb-8 leading-relaxed">
+          Enter the verification code sent to <br/>
+          <span className="font-semibold text-blue-400">demo1234sefc@gmail.com</span>
+        </p>
+        
         <div className="space-y-4">
           <SSInput
             label="OTP"
@@ -31,17 +38,17 @@ const EmailValidationComponent = () => {
             icon="fas fa-key"
             register={register}
           />
-          <SSButton text="Verify OTP" type="button" className="w-full" />
+          <SSButton text="Verify OTP" type="button" />
         </div>
-        <span className="text-sm text-center text-gray-500">
-          Need help? Contact us at
+        <p className="mt-8 text-sm text-center text-slate-400">
+          Need help? Contact us at{" "}
           <a
-            className="text-indigo-500 ml-2"
+            className="font-semibold text-blue-400 hover:text-blue-300 transition-colors duration-200"
             href="mailto:support@dreamgen.com"
           >
             support@dreamgen.com
           </a>
-        </span>
+        </p>
       </div>
     </div>
   );

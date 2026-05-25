@@ -22,9 +22,14 @@ interface Comment {
 
 interface Reaction {
   postId: string;
-  userId: { email: string } | string | any;
+  userId: { email: string } | string;
   type: "like" | "love" | "laugh" | "angry" | "sad";
   _id: string;
+}
+
+interface Bookmark {
+  _id?: string;
+  email: string;
 }
 
 export interface Post {
@@ -45,6 +50,7 @@ export interface Post {
   attachments: string[];
   comments: Comment[];
   reactions: Reaction[];
+  bookmarks?: Bookmark[];
   createdAt: string;
   updatedAt: string;
 }

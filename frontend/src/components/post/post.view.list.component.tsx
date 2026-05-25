@@ -2,9 +2,6 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Post } from "../../models/post";
 import LoadingAnimation from "../loading/loading.component";
-import { useToggleReactionMutation } from "../../redux/apis/reaction.api";
-import { toast } from "react-hot-toast";
-import { getUserInfo } from "../../services/auth.service";
 
 interface IExploreViewListComponentProps {
   posts: Post[];
@@ -16,64 +13,48 @@ const ExploreViewListComponent: React.FC<IExploreViewListComponentProps> = ({
   isLoading,
 }) => {
   const navigate = useNavigate();
-  const [toggleReaction] = useToggleReactionMutation();
-  const currentUser = getUserInfo();
-
-  const handleLike = async (e: React.MouseEvent, postId: string) => {
-    e.stopPropagation();
-    try {
-      await toggleReaction({ postId }).unwrap();
-    } catch (error) {
-      console.error("Failed to toggle reaction", error);
-      toast.error("You need to login to perform this action");
-    }
-  };
 
   if (isLoading) {
     return <LoadingAnimation />;
   }
+
   return (
     <div>
-      <div className="grid grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
         {posts.length > 0 ? (
           posts.map((story) => (
             <div
               key={story._id}
               onClick={() => navigate(`/post/${story._id}`)}
-              className="cursor-pointer bg-blue-500/10 rounded-lg shadow-sm overflow-hidden group"
+              className="cursor-pointer bg-slate-800/60 backdrop-blur-xl border border-slate-700/50 rounded-2xl shadow-lg hover:shadow-2xl hover:shadow-blue-500/10 hover:-translate-y-1 transition-all duration-300 overflow-hidden group flex flex-col h-full"
             >
-              <img src={story.imageURL} className="w-full h-36 object-cover" />
-              <div className="p-2">
-                <div className="flex items-center mb-2">
-                  <span className="bg-pink-200 text-pink-600 px-2 py-1 rounded text-xs">
-                    {story.tag}
-                  </span>
-                </div>
-                <h3 className="font-semibold mb-1 text-gray-400">
+              <div className="relative overflow-hidden">
+                <img
+                  src={story.imageURL}
+                  alt={`Cover image for ${story.title}`}
+                  className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent opacity-60 pointer-events-none"></div>
+
+                <span className="absolute top-4 left-4 bg-slate-900/80 backdrop-blur-md border border-slate-600 text-blue-300 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg">
+                  {story.tag}
+                </span>
+              </div>
+
+              <div className="p-6 flex-1 flex flex-col">
+                <h3 className="font-bold text-lg mb-2 text-slate-100 group-hover:text-blue-400 transition-colors line-clamp-1">
                   {story.title}
                 </h3>
-                <p className="text-sm text-gray-500 mb-2">
-                  {story.content.slice(0, 60)}
+
+                <p className="text-sm text-slate-400 mb-6 line-clamp-2 flex-1 leading-relaxed">
+                  {story.content.slice(0, 100)}...
                 </p>
-                <div className="flex items-center text-sm text-gray-500">
-                  <button 
-                    onClick={(e) => handleLike(e, story._id as string)}
-                    className={`!rounded-button flex items-center space-x-1 hover:text-gray-400 border px-3 py-1 cursor-pointer transition-colors ${
-                      story.reactions?.some((r: any) => r.userId?.email === currentUser?.email)
-                        ? "text-red-500 border-red-500/50 bg-red-500/10 hover:text-red-400"
-                        : ""
-                    }`}
-                  >
-                    <i className={`${story.reactions?.some((r: any) => r.userId?.email === currentUser?.email) ? 'fas' : 'far'} fa-heart`}></i>
-                    <span>{story.likesCount || 0}</span>
-                  </button>
-                  <button className="ml-2 !rounded-button flex items-center space-x-1 cursor-pointer hover:text-gray-400 border px-3 py-1">
-                    <i className="far fa-comment"></i>
-                    <span>{story.commentsCount || 0}</span>
-                  </button>
-                  <button className="ml-auto !rounded-button flex items-center space-x-1 hover:text-gray-400 border px-3 py-1">
-                    <i className="far fa-bookmark"></i>
-                  </button>
+
+                <div className="flex items-center justify-between text-sm text-slate-500 border-t border-slate-700/50 pt-4 mt-auto">
+                  <div className="flex items-center gap-4">
+                    <span>Author</span>
+                  </div>
                 </div>
               </div>
             </div>

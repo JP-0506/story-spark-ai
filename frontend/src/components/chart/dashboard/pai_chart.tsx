@@ -48,7 +48,7 @@ const UsersPieChart: FC<Props> = ({ data, title = "User Distribution" }) => {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: "right" as const,
+        position: "bottom" as const,
       },
       title: {
         display: true,
@@ -67,8 +67,8 @@ const UsersPieChart: FC<Props> = ({ data, title = "User Distribution" }) => {
   };
 
   return (
-    <div className="h-[400px] w-full bg-blue-500/10 shadow-md rounded-lg p-4 flex flex-col">
-      <div className="flex-1 relative">
+    <div className="flex h-[320px] w-full min-w-0 flex-col overflow-hidden rounded-lg bg-blue-500/10 p-4 shadow-md sm:h-[400px]">
+      <div className="relative flex-1">
         <Pie data={chartData} options={options} key={JSON.stringify(data)} />
       </div>
     </div>

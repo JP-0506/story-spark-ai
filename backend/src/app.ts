@@ -7,11 +7,13 @@ import config from "./config";
 import { Routers } from "./router";
 import globalErrorHandler from "./app/middleware/global.error.handler";
 import { User } from "./app/modules/user/user.model";
+import { NewsletterSubscriber } from "./app/modules/newsletter/newsletter.model";
 
 const app: Application = express();
 
 const defaultCorsOrigins = [
   "http://localhost:4001",
+  "http://localhost:4002",
   "https://storysparkai.vercel.app",
 ];
 const corsOrigins =
@@ -35,10 +37,7 @@ app.use(cookieParser());
 app.use("/api/v1", Routers);
 
 // Global error handler
-app.use(globalErrorHandler);
-
-// Handle API not found
-app.use((req: Request, res: Response, next: NextFunction) => {
+app.use((req: Request, res: Response) => {
   res.status(httpStatus.NOT_FOUND).json({
     success: false,
     message: "Not Found",
@@ -49,9 +48,9 @@ app.use((req: Request, res: Response, next: NextFunction) => {
       },
     ],
   });
-  next();
 });
 
+app.use(globalErrorHandler);
 // Cron job to reset request counts at the beginning of each month (skip on Vercel serverless)
 if (!process.env.VERCEL) {
   cron.schedule("0 0 1 * *", async () => {

@@ -100,7 +100,8 @@ const getPosts = async (
     .populate({
       path: "reactions",
       populate: { path: "userId", select: "email" },
-    });
+    })
+    .populate("bookmarks", "email");
   const total = await Post.countDocuments(whereCondition);
   return {
     meta: {
@@ -121,7 +122,8 @@ const getLatestPosts = async () => {
       .populate({
         path: "reactions",
         populate: { path: "userId", select: "email" },
-      });
+      })
+      .populate("bookmarks", "email");
     return res;
   } catch (error) {
     throw new ApiError(
@@ -140,7 +142,8 @@ const getFeaturedPosts = async () => {
       .populate({
         path: "reactions",
         populate: { path: "userId", select: "email" },
-      });
+      })
+      .populate("bookmarks", "email");
     return res;
   } catch (error) {
     throw new ApiError(
@@ -172,22 +175,57 @@ const getSinglePost = async (id: string) => {
     .populate({
       path: "reactions",
       populate: { path: "userId", select: "email" },
-    });
+    })
+    .populate("bookmarks", "email");
   if (!postById) {
     throw new ApiError(httpStatus.NOT_FOUND, "Post not found!");
   }
   return postById;
 };
 
-const getPostsByTag = async (tag: string) => {
-  const result = await Post.find({ tag })
+const getPostsByTag = async (tag: string, excludeId?: string) => {
+  const query: any = { tag };
+  if (excludeId) {
+    query._id = { $ne: excludeId };
+  }
+  const result = await Post.find(query)
     .limit(2)
     .populate("author", "name email createdAt")
     .populate({
       path: "reactions",
       populate: { path: "userId", select: "email" },
-    });
+    })
+    .populate("bookmarks", "email");
   return result;
+};
+
+const toggleBookmark = async (postId: string, token: ITokenPayload) => {
+  const { email } = token;
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "User not found!");
+  }
+  const post = await Post.findOne({ _id: postId });
+  if (!post) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Post not found!");
+  }
+
+  post.bookmarks = post.bookmarks || [];
+  const isBookmarked = post.bookmarks.some(
+    (uId) => uId && uId.toString() === user._id.toString()
+  );
+
+  if (isBookmarked) {
+    post.bookmarks = post.bookmarks.filter(
+      (uId) => uId && uId.toString() !== user._id.toString()
+    );
+    await post.save();
+    return { message: "Bookmark removed", bookmarked: false };
+  } else {
+    post.bookmarks.push(user._id);
+    await post.save();
+    return { message: "Bookmark added", bookmarked: true };
+  }
 };
 
 export const PostService = {
@@ -198,4 +236,5 @@ export const PostService = {
   doFeaturedPosts,
   getSinglePost,
   getPostsByTag,
+  toggleBookmark,
 };

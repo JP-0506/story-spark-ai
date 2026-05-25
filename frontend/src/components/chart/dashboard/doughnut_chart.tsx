@@ -35,9 +35,10 @@ const SubscriptionChart: FC<Props> = ({ data }) => {
 
   const options = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: "top" as const,
+        position: "bottom" as const,
       },
       title: {
         display: true,
@@ -48,7 +49,7 @@ const SubscriptionChart: FC<Props> = ({ data }) => {
   };
 
   return (
-    <div className="h-[400px] w-full bg-blue-500/10 shadow-md rounded-lg p-4 flex items-center justify-center">
+    <div className="flex h-[320px] w-full min-w-0 items-center justify-center overflow-hidden rounded-lg bg-blue-500/10 p-4 shadow-md sm:h-[400px]">
       <Doughnut data={chartData} options={options} key={JSON.stringify(data)} />
     </div>
   );
