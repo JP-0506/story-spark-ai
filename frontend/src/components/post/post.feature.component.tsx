@@ -1,7 +1,6 @@
 import React from "react";
 import { useGetFeaturedListsQuery } from "../../redux/apis/post.api";
 import { Post } from "../../models/post";
-import LoadingAnimation from "../loading/loading.component";
 
 const ExploreFeatureComponent = () => {
   const { data, isLoading, isError } = useGetFeaturedListsQuery(undefined);

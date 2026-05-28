@@ -374,6 +374,7 @@ const DashboardComponent = () => {
                 </a>
               </div>
             </div>
+            </div>
           )}
         </div>
       )}
