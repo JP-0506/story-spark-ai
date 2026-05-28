@@ -1,6 +1,6 @@
 {
-  "installCommand": "cd .. && npm ci",
-  "buildCommand": "npm run build",
+  "installCommand": "cd .. && npm install --include=optional && npm install -w story-spark-ai-frontend --no-save @rollup/rollup-linux-x64-gnu lightningcss-linux-x64-gnu",
+  "buildCommand": "npm run build -w story-spark-ai-frontend",
   "outputDirectory": "dist",
   "rewrites": [{ "source": "/(.*)", "destination": "/" }]
 }

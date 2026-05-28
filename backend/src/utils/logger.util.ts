@@ -5,7 +5,7 @@ const { combine, timestamp, printf, colorize, json, errors } = winston.format;
 
 const isDevelopment = config.env === 'development';
 
-const developmentFormat = printf(({ level, message, timestamp }) => {
+const developmentFormat = printf(({ level, message, timestamp }: winston.Logform.TransformableInfo) => {
   return `${timestamp} ${level}: ${message}`;
 });
 
