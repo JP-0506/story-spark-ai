@@ -323,13 +323,6 @@ const StoriesViewComponent: React.FC<StoriesComponentProps> = ({
       setIsGeneratingEndings(false);
     }
   };
-  if (!stories.length) {
-  return (
-    <div className="text-center text-gray-400 py-10">
-      No stories generated yet. Start by entering a prompt ✨
-    </div>
-  );
-}
   const handleApplyEnding = (endingData: { style: string; ending: string; fullStory: string }) => {
     if (!selectedStory) return;
     const updatedStory = { ...selectedStory, content: endingData.fullStory };
@@ -580,10 +573,18 @@ const StoriesViewComponent: React.FC<StoriesComponentProps> = ({
       </div>
     );
   }
+
+  if (!stories || !stories.length) {
+    return (
+      <div className="text-center text-gray-400 py-10">
+        No stories generated yet. Start by entering a prompt ✨
+      </div>
+    );
+  }
+
   if (!selectedStory) {
     return null;
   }
-  if (!selectedStory) return null;
 
   return (
     <div className="mt-16 px-4 sm:px-6 lg:px-8 max-w-8xl mx-auto pb-10">
@@ -849,7 +850,8 @@ const StoriesViewComponent: React.FC<StoriesComponentProps> = ({
                 <StoryCoverImage
                   title={selectedStory.title}
                   tag={selectedStory.tag}
-                  className="transition-transform duration-500 group-hover:scale-105"
+                  className="transition-transform duration-500"
+                  
                   style={{ width: "100%", height: "100%", borderRadius: "0.75rem" }}
                 />
               </div>

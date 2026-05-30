@@ -10,6 +10,9 @@ interface Author {
   email: string;
   name: string;
   createdAt: string;
+  profile?: {
+    bio?: string;
+  };
 }
 
 interface Comment {
