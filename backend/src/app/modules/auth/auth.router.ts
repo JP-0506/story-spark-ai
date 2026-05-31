@@ -4,10 +4,11 @@ import validateRequest from "../../middleware/validate.request";
 import { UserValidator } from "../user/user.validation";
 import auth from "../../middleware/auth.middleware";
 import { ENUM_USER_ROLE } from "../../../enums/user";
-import ipRateLimiter, {
+import {
   loginRateLimiter,
   forgotPasswordRateLimiter,
   resetPasswordRateLimiter,
+  ipRateLimiter,
 } from "../../middleware/ip.rate-limiter";
 
 const router = express.Router();
@@ -33,6 +34,9 @@ router.post(
 
 // Refresh Token API route
 router.post("/refresh-token", AuthController.refreshToken);
+
+// Logout API route
+router.post("/logout", AuthController.logout);
 
 // Change Password API route
 router.post(

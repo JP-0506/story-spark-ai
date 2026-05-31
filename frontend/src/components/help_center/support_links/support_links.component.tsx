@@ -31,19 +31,7 @@ const SupportLinks: FC<SupportLinksProps> = ({ links }) => {
         <p className="mt-4 max-w-2xl mx-auto text-slate-600 dark:text-gray-400 leading-relaxed font-medium">
           Connect with the StorySparkAI community, report issues, explore
           documentation, and collaborate with contributors worldwide.
-      <div className="text-center mb-10">
-        
-        <h2
-          id="support-heading"
-          className="text-3xl font-bold text-slate-800 dark:text-gray-300"
-        >
-          Support &amp; Community
-        </h2>
-
-        <p className="mt-3 text-slate-600 dark:text-gray-400 max-w-2xl mx-auto">
-          Need more help? Connect with the StorySparkAI open-source community.
         </p>
-
       </div>
 
       {/* Cards Grid */}
@@ -51,9 +39,9 @@ const SupportLinks: FC<SupportLinksProps> = ({ links }) => {
         {links && links.map((link) => (
           <motion.a
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        
+
         {links.map((link) => (
-          <a
+          <motion.a
             key={link.id}
             href={link.href}
             target={link.external ? "_blank" : undefined}
@@ -61,9 +49,9 @@ const SupportLinks: FC<SupportLinksProps> = ({ links }) => {
             className="group flex items-start gap-5 bg-white dark:bg-blue-500/10 hover:bg-gray-50 dark:hover:bg-blue-500/20 border border-gray-200 dark:border-white/5 hover:border-indigo-400 dark:hover:border-indigo-500/30 p-6 rounded-xl shadow-sm dark:shadow-none transition-all duration-300 hover:scale-[1.02] hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
             className="group flex items-start gap-5 bg-white dark:bg-blue-500/10 hover:bg-slate-50 dark:hover:bg-blue-500/20 border border-slate-200 dark:border-white/5 hover:border-indigo-500/30 p-6 rounded-xl shadow-sm transition-all duration-300 hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
           >
-            
+
             <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-700 dark:group-hover:text-indigo-300 transition-colors">
-              
+
               <i
                 className={`${link.icon} text-xl`}
                 aria-hidden="true"
@@ -73,9 +61,9 @@ const SupportLinks: FC<SupportLinksProps> = ({ links }) => {
             
 
             <div className="flex-1 min-w-0">
-              
+
               <h3 className="text-lg font-semibold text-slate-800 dark:text-gray-300 group-hover:text-indigo-700 dark:group-hover:text-white transition-colors flex items-center gap-2">
-                
+
                 {link.title}
 
                 {link.external && (
@@ -97,8 +85,13 @@ const SupportLinks: FC<SupportLinksProps> = ({ links }) => {
         ))}
       </div>
 
+<<<<<<< HEAD
       {/* GitHub CTA Container */}
       <div className="flex justify-center mt-8">
+=======
+      <div className="mt-10 text-center">
+        {/* GitHub CTA */}
+>>>>>>> upstream/main
         <a
           href="https://github.com"
           target="_blank"
@@ -108,6 +101,7 @@ const SupportLinks: FC<SupportLinksProps> = ({ links }) => {
           <i className="fa-brands fa-github text-base"></i>
           Contribute Now
         </a>
+<<<<<<< HEAD
           {/* GitHub CTA */}
           <a
             href="https://github.com"
@@ -120,6 +114,8 @@ const SupportLinks: FC<SupportLinksProps> = ({ links }) => {
           </a>
         ))}
 
+=======
+>>>>>>> upstream/main
       </div>
     </motion.section>
   );

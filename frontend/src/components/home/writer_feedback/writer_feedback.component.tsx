@@ -1,6 +1,8 @@
 import React from "react";
 import { useGetReviewsQuery } from "../../../redux/apis/review.api";
 import { Review } from "../../../models/review";
+import ImageFallback from "../../ImageFallback";
+ImageFallback
 import ReviewForm from "./ReviewForm";
 
 const WriterFeedbackComponent = () => {
@@ -35,6 +37,8 @@ const WriterFeedbackComponent = () => {
               className="motion-card-subtle story-panel rounded-lg p-6 hover:border-blue-400/35"
             >
               <div className="flex items-center mb-4">
+                <ImageFallback
+                  className="h-12 w-12 rounded-full ring-4 ring-white"
                 <img
                   className="h-12 w-12 rounded-full object-cover ring-2 ring-blue-300/25"
                   src={writer.imgSrc}

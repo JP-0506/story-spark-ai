@@ -1,14 +1,17 @@
 
 import { Link } from "react-router-dom";
 import {
-    Handshake,
-    Sparkles,
-    Smile,
-    Ban,
-    Lightbulb,
-    FileText,
-    ArrowLeft,
+  Sparkles,
+  Lightbulb,
+  ArrowLeft,
+  MessageCircle,
+  GitPullRequestArrow,
+  Code2,
+  Accessibility,
+  Bug,
+  HeartHandshake,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 type GuidelineSection = {
   title: string;
@@ -116,8 +119,13 @@ const workflowSteps = [
   "Open a pull request with context, screenshots, and testing notes.",
 ];
 
-const Guidelines = () => {
 
+const Guidelines = () => {
+  return (
+    <div>
+      <h1>Guidelines</h1>
+    </div>
+  );
 };
 
 export default Guidelines;
