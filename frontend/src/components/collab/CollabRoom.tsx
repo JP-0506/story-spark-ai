@@ -2,8 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { connectSocket } from "../../socket/socket.oi";
 import { isLoggedIn, getUserInfo } from "../../services/auth.service";
-import { io, Socket } from "socket.io-client"; // Imported Socket type and io helper safely
-
+import { Socket } from "socket.io-client";
 interface Participant {
   userId: string;
   username: string;
@@ -27,7 +26,6 @@ interface Room {
   story: StoryChunk[];
   createdAt: Date;
 }
-import { useParams, useNavigate } from "react-router-dom";
 
 /**
  * Collab rooms required Socket.IO to `BACKEND_URL/collab`. That is disabled in the
@@ -61,7 +59,8 @@ export default function CollabRoom() {
       }
 
       // Connect to collab namespace
-      const collabSocket = socket.io.socket("/collab");
+      const collabSocket = (socket as any).io ? (socket as any).io.socket("/collab") : (socket as any).socket("/collab");
+      collabSocketRef.current = collabSocket;
 
       // Request room info
       collabSocket.emit("collab:get_room", { roomId }, (response: any) => {
@@ -98,6 +97,8 @@ export default function CollabRoom() {
         collabSocket.off("collab:room_updated", handleRoomUpdated);
         collabSocket.off("collab:story_updated", handleStoryUpdated);
         collabSocket.disconnect(); // Clean connection handle loop safely
+        socket.disconnect(); // Prevent memory leak by disconnecting the main socket
+        collabSocketRef.current = null;
       };
     } catch (err) {
       console.error("Collab error:", err);
@@ -109,9 +110,8 @@ export default function CollabRoom() {
   const handleAddText = () => {
     if (!newText.trim() || !user) return;
 
-    const socket = getSocketIo();
-    if (socket) {
-      socket.io.socket("/collab").emit("collab:add_text", {
+    if (collabSocketRef.current) {
+      collabSocketRef.current.emit("collab:add_text", {
         roomId,
         userId: user.userId,
         text: newText,
@@ -121,9 +121,8 @@ export default function CollabRoom() {
   };
 
   const handleAIContinue = () => {
-    const socket = getSocketIo();
-    if (socket) {
-      socket.io.socket("/collab").emit("collab:ai_continue", { roomId });
+    if (collabSocketRef.current) {
+      collabSocketRef.current.emit("collab:ai_continue", { roomId });
     }
   };
 
