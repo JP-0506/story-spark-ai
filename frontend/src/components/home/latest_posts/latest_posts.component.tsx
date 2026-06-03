@@ -16,7 +16,7 @@ const LatestPostsComponent = () => {
   if (isError) {
     return (
       <section className="mb-12 text-slate-100">
-        <h2 className="mb-6 text-2xl font-bold">Latest Posts</h2>
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-gray-200 mb-6">Latest Posts</h2>
         <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-5 text-center text-red-200">
           <p className="mb-3 font-semibold">Failed to load latest posts.</p>
           <button
@@ -50,7 +50,7 @@ const LatestPostsComponent = () => {
           data?.posts?.map((post: Post) => (
             <div
               key={post._id}
-              className="bg-blue-500/10 rounded-lg shadow-sm p-6 cursor-pointer transition-all duration-300 ease-out hover:-translate-y-3 hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-500/20 hover:border-blue-400 hover:ring-2 hover:ring-blue-300 hover:z-10">
+              className="motion-card rounded-xl border border-slate-200 bg-white p-6 shadow-lg dark:border-slate-800 dark:bg-slate-900 cursor-pointer transition-all duration-300 ease-out hover:-translate-y-2">
               <div className="flex items-center mb-4">
                 <SSProfile name={post.author?.name || 'Unknown User'} size="h-8 w-8" />
                 <div className="ml-4">
@@ -105,7 +105,7 @@ const LatestPostsComponent = () => {
             return (
               <div
                 key={post._id}
-                className="motion-card-subtle story-panel rounded-lg overflow-hidden border border-slate-700/30 bg-[#252b3d]/40 transition-all duration-200"
+                className="motion-card rounded-xl overflow-hidden border border-slate-200 bg-white shadow-lg dark:border-slate-800 dark:bg-slate-900"
               >
                 {/* Accordion Header / Trigger Button */}
                 <button
@@ -124,7 +124,7 @@ const LatestPostsComponent = () => {
                     isExpanded ? "max-h-[500px] border-t border-slate-700/30" : "max-h-0"
                   }`}
                 >
-                  <div className="p-5 bg-[#1e2330]/30">
+                  <div className="p-5 bg-slate-50 dark:bg-slate-800/50">
                     <p className="text-slate-400 text-sm md:text-base leading-relaxed mb-4 whitespace-pre-wrap">
                       {post.content || "No preview content available."}
                     </p>
