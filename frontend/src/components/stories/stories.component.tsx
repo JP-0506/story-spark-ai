@@ -419,6 +419,8 @@ const StoriesComponent = () => {
   const [searchFilter, setSearchFilter] = useState<string>("all");
 
   const debouncedSearchQuery = useDebounce(searchQuery, 350);
+  const debouncedPrompt = useDebounce(textareaValue, 500);
+
 
   const filteredStories = useMemo(() => {
     if (!debouncedSearchQuery.trim()) return stories;
@@ -584,8 +586,8 @@ const StoriesComponent = () => {
   }, [location, navigate, setSelectedGenre, setTextareaValue]);
 
   useEffect(() => {
-    setValue("prompt", textareaValue);
-  }, [textareaValue, setValue]);
+  setValue("prompt", debouncedPrompt);
+}, [debouncedPrompt, setValue]);
 
   useEffect(() => {
     return () => {
