@@ -33,7 +33,8 @@ type Inputs = {
 };
 
 const MAX_PROMPT_LENGTH = 2000;
-const WARN_THRESHOLD = 0.85;
+const WARN_THRESHOLD = 0.8;
+const DANGER_THRESHOLD = 0.95;
 
 const LANGUAGES = [
   { code: "en", name: "English" },
@@ -933,7 +934,8 @@ useEffect(() => {
   ]);
 
   const isOverLimit = textareaValue.length >= MAX_PROMPT_LENGTH;
-  const isNearLimit = textareaValue.length >= MAX_PROMPT_LENGTH * WARN_THRESHOLD;
+  const isDangerLimit = textareaValue.length >= MAX_PROMPT_LENGTH * DANGER_THRESHOLD;
+  const isNearLimit = textareaValue.length >= MAX_PROMPT_LENGTH * WARN_THRESHOLD && !isDangerLimit;
   const isGenerateDisabled = loading || isOverLimit || !textareaValue.trim();
 
   const handleOpenHelp = useCallback(() => setShowHelpModal(true), []);
@@ -1271,7 +1273,7 @@ useEffect(() => {
                         inputRef.current = el;
                       }}
                       className={`w-full h-32 sm:h-40 resize-none border-none outline-none bg-transparent text-slate-800 dark:text-slate-200 focus:ring-0 text-sm sm:text-base leading-relaxed placeholder:italic placeholder:text-slate-400 dark:placeholder:text-slate-500 pr-12 transition-colors duration-200 ${
-                        isOverLimit ? "ring-1 ring-red-500 rounded-lg p-2" : isNearLimit ? "ring-1 ring-yellow-400 rounded-lg p-2" : ""
+                        isOverLimit || isDangerLimit ? "ring-1 ring-red-500 rounded-lg p-2" : isNearLimit ? "ring-1 ring-yellow-400 rounded-lg p-2" : ""
                       }`}
                       placeholder={text.promptPlaceholder}
                       value={textareaValue}
@@ -1327,7 +1329,7 @@ useEffect(() => {
                       </div>
 
                       <span className={`text-[11px] font-bold tabular-nums shrink-0 ml-auto ${
-                        isOverLimit ? "text-red-500 dark:text-red-400" : isNearLimit ? "text-amber-500" : "text-slate-400"
+                        isOverLimit || isDangerLimit ? "text-red-500 dark:text-red-400" : isNearLimit ? "text-amber-500" : "text-slate-400"
                       }`}>
                         {textareaValue.length} / {MAX_PROMPT_LENGTH}
                       </span>
@@ -1396,7 +1398,7 @@ useEffect(() => {
 
                       <span
   className={`text-xs tabular-nums ml-auto flex gap-2 ${
-    isOverLimit
+    isOverLimit || isDangerLimit
       ? "text-red-400 font-medium"
       : isNearLimit
       ? "text-yellow-400"
@@ -1590,7 +1592,7 @@ useEffect(() => {
                   </div>
 
                   <span className={`text-[11px] font-bold tabular-nums shrink-0 ml-auto ${
-                    isOverLimit ? "text-red-500 dark:text-red-400" : isNearLimit ? "text-amber-500" : "text-slate-400"
+                    isOverLimit || isDangerLimit ? "text-red-500 dark:text-red-400" : isNearLimit ? "text-amber-500" : "text-slate-400"
                   }`}>
                     {textareaValue.length} / {MAX_PROMPT_LENGTH}
                   </span>
@@ -1653,7 +1655,7 @@ useEffect(() => {
     inputRef.current = el;
   }}
         className={`w-full h-32 sm:h-40 resize-none border-none outline-none bg-transparent text-gray-800 dark:text-gray-200 focus:ring-0 text-lg leading-relaxed tracking-wide placeholder:italic placeholder:text-gray-500 dark:placeholder:text-gray-400 pr-4 transition-colors duration-200 ${
-          isOverLimit
+          isOverLimit || isDangerLimit
             ? "ring-1 ring-red-500 rounded"
             : isNearLimit
             ? "ring-1 ring-yellow-400 rounded"
@@ -1691,7 +1693,7 @@ useEffect(() => {
 
         <span
           className={`text-xs tabular-nums ml-auto ${
-            isOverLimit
+            isOverLimit || isDangerLimit
               ? "text-red-400 font-medium"
               : isNearLimit
               ? "text-yellow-400"
