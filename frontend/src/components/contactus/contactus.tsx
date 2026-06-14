@@ -1,5 +1,5 @@
 ﻿import { useState, useRef, useEffect } from "react";
-import type { ChangeEvent, FormEvent } from "react";
+import type { ChangeEvent, ElementType, FormEvent } from "react";
 import {
   Mail,
   User,
@@ -17,7 +17,7 @@ import { instance as axios } from "../../helpers/axios/axiosInstance";
 import { getBaseUrl } from "../../helpers/config";
 import storybook from "../../assets/storybook.png";
 
-// ΓöÇΓöÇΓöÇ Types ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// Types
 
 type FormData = {
   fullname: string;
@@ -64,7 +64,7 @@ const FORM_FIELDS: Array<{
   type: string;
   label: string;
   placeholder: string;
-  icon: React.ElementType;
+  icon: ElementType;
   autoComplete: string;
 }> = [
     {
@@ -102,14 +102,14 @@ const STATS = [
   { value: "Open", label: "Source project" },
 ] as const;
 
-// ΓöÇΓöÇΓöÇ FloatingLabelInput ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// FloatingLabelInputΓöÇΓöÇ
 
 interface FloatingLabelInputProps {
   id: string;
   name: FormField;
   type: string;
   label: string;
-  icon: React.ElementType;
+  icon: ElementType;
   autoComplete: string;
   value: string;
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
@@ -179,7 +179,7 @@ const FloatingLabelInput = ({
   );
 };
 
-// ΓöÇΓöÇΓöÇ FloatingLabelTextarea ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// FloatingLabelTextarea
 
 interface FloatingLabelTextareaProps {
   value: string;
@@ -245,7 +245,7 @@ const FloatingLabelTextarea = ({
   );
 };
 
-// ΓöÇΓöÇΓöÇ Main Contact component ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// Main Contact component
 
 export default function Contact() {
   const [formData, setFormData] = useState<FormData>(INITIAL_FORM_DATA);
@@ -352,15 +352,15 @@ export default function Contact() {
       aria-labelledby="contact-heading"
       className="contact-section relative overflow-hidden bg-[#020617] text-white"
     >
-      {/* ΓöÇΓöÇ Layered background ΓöÇΓöÇ */}
+      {/* Layered background */}
       <div aria-hidden="true" className="contact-bg-mesh" />
       <div aria-hidden="true" className="contact-orb contact-orb-blue" />
       <div aria-hidden="true" className="contact-orb contact-orb-purple" />
       <div aria-hidden="true" className="contact-orb contact-orb-pink" />
       <div aria-hidden="true" className="contact-grid-overlay" />
 
-      {/* ΓöÇΓöÇ Page content ΓöÇΓöÇ */}
-      <div className="relative z-10 mx-auto w-full max-w-7xl px-5 py-14 sm:px-8 sm:py-18 lg:px-12 lg:py-20 xl:px-16">
+      {/* Page content */}
+      <div className="relative z-10 mx-auto w-full max-w-6xl px-5 py-14 sm:px-8 sm:py-18 lg:px-12 lg:py-20 xl:px-16">
 
         {/* Mobile badge */}
         <div className="mb-10 flex flex-col items-center text-center lg:hidden">
@@ -373,9 +373,7 @@ export default function Contact() {
           </span>
         </div>
 
-        <div className="grid items-start gap-10 lg:grid-cols-[1fr_1.1fr] lg:gap-14 xl:gap-20">
-
-          {/* ΓöÇΓöÇ LEFT COLUMN ΓöÇΓöÇ */}
+    <div className="grid items-start gap-10 lg:grid-cols-[1fr_1fr] lg:gap-14 xl:gap-20">
           <div
             className={`contact-col-left flex flex-col transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
               }`}
@@ -418,7 +416,7 @@ export default function Contact() {
                   style={{
                     transitionDelay: isVisible ? `${i * 80}ms` : "0ms",
                   }}
-                >
+              >
                   <p className="text-lg font-black text-white sm:text-xl">{value}</p>
                   <p className="mt-0.5 text-[0.65rem] font-medium uppercase tracking-wider text-slate-500 sm:text-xs">
                     {label}
@@ -427,7 +425,7 @@ export default function Contact() {
               ))}
             </div>
 
-            {/* Contact channels */}
+        {/* Contact channels */}
             <ul className="mt-7 space-y-2.5 sm:mt-8" aria-label="Contact channels">
               {CONTACT_CHANNELS.map(
                 ({ icon: Icon, label, value, href, color, iconColor, hoverBorder }) => (
@@ -533,7 +531,7 @@ export default function Contact() {
                     type="submit"
                     disabled={loading}
                     aria-busy={loading}
-                    aria-label={loading ? "Sending messageΓÇª" : "Send message"}
+                    aria-label={loading ? "Sending message…" : "Send message"}
                     className="contact-submit-btn group relative mt-1 flex h-12 w-full items-center justify-center gap-2.5 overflow-hidden rounded-xl text-sm font-bold text-white sm:h-[3.125rem] sm:text-base"
                   >
                     <span aria-hidden="true" className="contact-btn-gradient absolute inset-0" />
@@ -549,7 +547,7 @@ export default function Contact() {
                             aria-hidden="true"
                             className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"
                           />
-                          <span>SendingΓÇª</span>
+                          <span>Sending…</span>
                         </>
                       ) : (
                         <>
