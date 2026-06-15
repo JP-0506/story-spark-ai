@@ -13,6 +13,7 @@ import MagicCursorComponent from "./components/magic-cursor/magic_cursor.compone
 import HeroSectionComponent from "./components/hero/hero_section.component";
 import HomeComponent from "./components/home/home.component";
 import NotFoundComponent from "./components/not-found.component";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 // Lazy-loaded page components
 const TemplatesComponent = lazy(() => import("./components/templates/templates.component"));
@@ -64,7 +65,9 @@ const ELEVATED_ADMIN_ROLES = [USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN];
 const WRITER_PLUS_ADMIN_ROLES = [USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN, USER_ROLE.WRITER];
 
 const lazyPage = (element: React.ReactElement) => (
-  <Suspense fallback={<LoadingAnimation />}>{element}</Suspense>
+  <ErrorBoundary>
+    <Suspense fallback={<LoadingAnimation />}>{element}</Suspense>
+  </ErrorBoundary>
 );
 
 const router = createBrowserRouter([
@@ -76,9 +79,11 @@ const router = createBrowserRouter([
         <MagicCursorComponent />
         <ScrollToTop />
         <RootLayout>
-          <Suspense fallback={<LoadingAnimation />}>
-            <Outlet />
-          </Suspense>
+          <ErrorBoundary>
+            <Suspense fallback={<LoadingAnimation />}>
+              <Outlet />
+            </Suspense>
+          </ErrorBoundary>
         </RootLayout>
       </>
     ),
@@ -101,7 +106,6 @@ const router = createBrowserRouter([
       { path: "terms", element: <Terms /> },
       { path: "help-center", element: <HelpCenterComponent /> },
       { path: "guidelines", element: <GuidelinesComponent /> },
-      { path: "contributors", element: <SafeContributorsComponent /> },
       { path: "contributors", element: <ContributorsComponent /> },
       { path: "community", element: <CommunityComponent /> },
       { path: "report-bug", element: <ReportBug /> },
@@ -138,9 +142,11 @@ const router = createBrowserRouter([
     children: [
       {
         element: (
-          <Suspense fallback={<LoadingAnimation />}>
-            <DashboardLayout />
-          </Suspense>
+          <ErrorBoundary>
+            <Suspense fallback={<LoadingAnimation />}>
+              <DashboardLayout />
+            </Suspense>
+          </ErrorBoundary>
         ),
         children: [
           { index: true, element: <DashboardComponent /> },
