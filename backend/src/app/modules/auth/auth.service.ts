@@ -288,6 +288,36 @@ const googleLogin = async (payload: { token: string }) => {
           },
         },
       };
+<<<<<<< fix/restore-backend-auth-service-279
+
+      user = await User.create(newUser);
+    }
+
+    validateUserStatus(user.status);
+
+    const accessToken = issueAccessToken(user);
+    const refreshTokenData = await issueRefreshToken(user);
+
+    GamificationService.updateDailyStreak(String(user._id)).catch(console.error);
+
+    return {
+      accessToken,
+      refreshToken: refreshTokenData,
+    };
+  } catch (error: any) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logger.error(`Google login error: ${errorMessage}`);
+    
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    
+    throw new ApiError(
+      httpStatus.UNAUTHORIZED,
+      error.message || "Google login failed"
+    );
+  }
+=======
 
 
     const payload_data = ticket.getPayload();
@@ -377,12 +407,43 @@ const changePassword = async (userPayload: any, payload: any) => {
     user.tokenVersion = 1;
   }
   await user.save();
+>>>>>>> main
 };
 const forgotPassword = async (email: string) => {
   if (!email) {
     throw new ApiError(httpStatus.BAD_REQUEST, "Email is required!");
   }
 
+<<<<<<< fix/restore-backend-auth-service-279
+const changePassword = async (userPayload: any, payload: any) => {
+  const { oldPassword, newPassword } = payload;
+  const user = await User.findById(userPayload._id);
+
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  if (!user.password) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "User does not have a password set"
+    );
+  }
+
+  const isPasswordMatch = await bcrypt.compare(oldPassword, user.password);
+  if (!isPasswordMatch) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, "Old password is incorrect");
+  }
+
+  user.password = newPassword;
+
+  if (user.tokenVersion !== undefined) {
+    user.tokenVersion += 1;
+  } else {
+    user.tokenVersion = 1;
+  }
+  await user.save();
+=======
   // Same response for real and unknown emails to prevent account enumeration.
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
@@ -412,8 +473,107 @@ const forgotPassword = async (email: string) => {
   }
 
   return { expiresAt };
+>>>>>>> main
+};
+const forgotPassword = async (email: string) => {
+  if (!email) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Email is required!");
+  }
+
+  // Same response for real and unknown emails to prevent account enumeration.
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+<<<<<<< fix/restore-backend-auth-service-279
+  const user = await User.findOne({ email });
+  if (user) {
+    // Fire and forget so response timing does not vary with account existence.
+    VerifyEmailService.VerifyEmail({
+      email: user.email,
+      name: user.name || "User",
+    }).catch((err) => {
+      const message = err instanceof Error ? err.message : String(err);
+      logger.error(`forgotPassword OTP send failed for ${user.email}: ${message}`);
+    });
+  }
+
+  return { expiresAt };
 };
 
+const resetPassword = async (payload: {
+  email: string;
+  password: string;
+  confirmPassword: string;
+  verificationToken: string;
+}) => {
+  const { email, password, confirmPassword, verificationToken } = payload;
+  if (!email || !password || !confirmPassword || !verificationToken) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "All fields are required!");
+  }
+  if (password !== confirmPassword) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Passwords do not match!");
+  }
+  
+  const getPasswordError = (pwd: string) => {
+    if (pwd.length < 8) return "Password must be at least 8 characters long";
+    if (!/[A-Z]/.test(pwd)) return "Password must contain at least one uppercase letter";
+    if (!/[a-z]/.test(pwd)) return "Password must contain at least one lowercase letter";
+    if (!/[0-9]/.test(pwd)) return "Password must contain at least one number";
+    if (!/[^A-Za-z0-9]/.test(pwd)) return "Password must contain at least one special character";
+    return "";
+  };
+  const passwordError = getPasswordError(password);
+  if (passwordError) {
+    throw new ApiError(httpStatus.BAD_REQUEST, passwordError);
+  }
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User not found!");
+  }
+
+  const otpRecord = await OTPModel.findOne({
+    email,
+    isVerified: true,
+    verificationToken,
+  });
+
+  if (!otpRecord) {
+    throw new ApiError(
+      httpStatus.UNAUTHORIZED,
+      "Invalid or expired verification token. Please verify your email again."
+    );
+  }
+
+  if (
+    !otpRecord.verificationTokenExpires ||
+    new Date() > otpRecord.verificationTokenExpires
+  ) {
+    throw new ApiError(
+      httpStatus.UNAUTHORIZED,
+      "Verification token has expired. Please verify your email again."
+    );
+  }
+
+  // Bump tokenVersion and revoke sessions so the reset invalidates old logins.
+  user.password = password;
+  user.tokenVersion = (user.tokenVersion ?? 0) + 1;
+  await user.save();
+  await RefreshSession.updateMany({ userId: user._id }, { revoked: true });
+
+  // Clean up OTP record
+  await OTPModel.deleteOne({ email });
+
+  // Generate JWT tokens for auto-login with the new tokenVersion.
+  const accessToken = issueAccessToken(user);
+  const refreshToken = await issueRefreshToken(user);
+
+  return {
+    accessToken,
+    refreshToken,
+  };
+};
+
+=======
 const resetPassword = async (payload: {
   email: string;
   password: string;
@@ -508,6 +668,7 @@ const resetPassword = async (payload: {
   };
 };
 
+>>>>>>> main
 export const AuthService = {
   login,
   register,
@@ -517,5 +678,9 @@ export const AuthService = {
   changePassword,
   forgotPassword,
   resetPassword,
+<<<<<<< fix/restore-backend-auth-service-279
+};
+=======
 };
 };
+>>>>>>> main
