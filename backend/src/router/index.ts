@@ -26,6 +26,7 @@ import { StoryVisualizerRouter } from "../app/modules/story_visualizer/story_vis
 import { StoryInspirationRouter } from "../app/modules/story_inspiration/story_inspiration.router";
 import { EngagementRouter } from "../app/modules/engagement/engagement.router";
 import { ChatRouter } from "../app/modules/chat/chat.router";
+import PromptAnalysisRouter from "../app/modules/prompt_analysis/prompt_analysis.router";
 
 import { StoryConsistencyRouter } from "../app/modules/story_consistency/story_consistency.router";
 
@@ -88,6 +89,10 @@ const modules = [
   {
     path: "/story-consistency",
     router: StoryConsistencyRouter,
+  },
+  {
+    path: "/prompt-analysis",
+    router: PromptAnalysisRouter,
   },
 ];
 

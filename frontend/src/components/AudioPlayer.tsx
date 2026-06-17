@@ -289,78 +289,80 @@ const AudioPlayer = forwardRef<AudioPlayerHandle, AudioPlayerProps>(
                 Stop
               </button>
             </div>
-            <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(140px,160px)_minmax(160px,1fr)_minmax(160px,1fr)_minmax(200px,1fr)] lg:items-end">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm text-slate-600 dark:text-slate-400">
-                  <span>Progress</span>
-                  <span aria-live="polite">
-                    {speech.isPlaying || speech.isPaused ? spokenWordCount : 0} / {speech.progress.totalWords} words
-                  </span>
-                </div>
+            {/* Progress bar spans full width */}
+            <div className="space-y-2 mb-4 w-full">
+              <div className="flex items-center justify-between text-sm text-slate-600 dark:text-slate-400">
+                <span>Progress</span>
+                <span aria-live="polite">
+                  {speech.isPlaying || speech.isPaused ? spokenWordCount : 0} / {speech.progress.totalWords} words
+                </span>
+              </div>
+              <div
+                role="progressbar"
+                aria-label="Narration progress"
+                aria-valuemin={0}
+                aria-valuemax={speech.progress.totalWords}
+                aria-valuenow={spokenWordCount}
+                className="h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800"
+              >
                 <div
-                  role="progressbar"
-                  aria-label="Narration progress"
-                  aria-valuemin={0}
-                  aria-valuemax={speech.progress.totalWords}
-                  aria-valuenow={spokenWordCount}
-                  className="h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800"
+                  className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-violet-500 to-fuchsia-500 transition-all duration-300"
+                  style={{ width: `${Math.round(speech.progress.percentage * 100)}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Responsive settings controls grid */}
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 items-end">
+              <div className="space-y-2">
+                <label
+                  htmlFor={speedSelectId}
+                  className="text-sm font-medium text-slate-700 dark:text-slate-300"
                 >
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-violet-500 to-fuchsia-500 transition-all duration-300"
-                    style={{ width: `${Math.round(speech.progress.percentage * 100)}%` }}
-                  />
+                  Playback speed
+                </label>
+                <div className="relative">
+                  <select
+                    id={speedSelectId}
+                    aria-label="Playback speed"
+                    role="combobox"
+                    value={speech.rate}
+                    onChange={(event) => speech.setRate(Number(event.target.value))}
+                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-indigo-400 dark:focus:ring-indigo-500/20"
+                  >
+                    {SPEED_OPTIONS.map((option) => (
+                      <option key={option} value={option}>
+                        {option.toFixed(2).replace(/\.00$/, "")}&times;
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <label
-                    htmlFor={speedSelectId}
-                    className="text-sm font-medium text-slate-700 dark:text-slate-300"
+              <div className="space-y-2">
+                <label
+                  htmlFor={voiceGenderSelectId}
+                  className="text-sm font-medium text-slate-700 dark:text-slate-300"
+                >
+                  Voice gender
+                </label>
+                <div className="relative">
+                  <select
+                    id={voiceGenderSelectId}
+                    aria-label="Voice gender"
+                    role="combobox"
+                    value={voiceGender}
+                    onChange={(event) => setVoiceGender(event.target.value as "female" | "male")}
+                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-indigo-400 dark:focus:ring-indigo-500/20"
                   >
-                    Playback speed
-                  </label>
-                  <div className="relative">
-                    <select
-                      id={speedSelectId}
-                      aria-label="Playback speed"
-                      role="combobox"
-                      value={speech.rate}
-                      onChange={(event) => speech.setRate(Number(event.target.value))}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-indigo-400 dark:focus:ring-indigo-500/20"
-                    >
-                      {SPEED_OPTIONS.map((option) => (
-                        <option key={option} value={option}>
-                          {option.toFixed(2).replace(/\.00$/, "")}&times;
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                    <option value="female">Female voice</option>
+                    <option value="male">Male voice</option>
+                  </select>
                 </div>
+              </div>
 
-                <div className="space-y-2">
-                  <label
-                    htmlFor={voiceGenderSelectId}
-                    className="text-sm font-medium text-slate-700 dark:text-slate-300"
-                  >
-                    Voice
-                  </label>
-                  <div className="relative">
-                    <select
-                      id={voiceGenderSelectId}
-                      aria-label="Voice gender"
-                      role="combobox"
-                      value={voiceGender}
-                      onChange={(event) => setVoiceGender(event.target.value as "female" | "male")}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-indigo-400 dark:focus:ring-indigo-500/20"
-                    >
-                      <option value="female">Female voice</option>
-                      <option value="male">Male voice</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-2 col-span-1 sm:col-span-2 md:col-span-1">
+                <div className="grid gap-3 grid-cols-2">
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
                       Pitch

@@ -5,14 +5,13 @@ import { useState, useEffect } from "react";
 import { storeUserInfo } from "../../services/auth.service";
 import toast, { Toaster } from "react-hot-toast";
 import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useGoogleLoginMutation } from "../../redux/apis/auth.api";
 import {
   useEmailVerifyMutation,
   useVerifyOtpMutation,
 } from "../../redux/apis/otp.verify.api";
 import { useRegisterUserMutation } from "../../redux/apis/auth.api";
-import { useNavigate } from "react-router-dom";
 
 interface IRegisterInfo {
   name: string;
@@ -40,24 +39,9 @@ const PASSWORD_STRENGTH_CONFIG: Record<
   StrengthLevel,
   { label: string; barColor: string; barWidth: string; textColor: string }
 > = {
-  weak: {
-    label: "Weak",
-    barColor: "bg-red-500",
-    barWidth: "w-1/3",
-    textColor: "text-red-600 dark:text-red-400",
-  },
-  medium: {
-    label: "Medium",
-    barColor: "bg-yellow-400",
-    barWidth: "w-2/3",
-    textColor: "text-yellow-700 dark:text-yellow-300",
-  },
-  strong: {
-    label: "Strong",
-    barColor: "bg-green-500",
-    barWidth: "w-full",
-    textColor: "text-green-600 dark:text-green-400",
-  },
+  weak: { label: "Weak", barColor: "bg-red-500", barWidth: "w-1/3", textColor: "text-red-400" },
+  medium: { label: "Medium", barColor: "bg-yellow-400", barWidth: "w-2/3", textColor: "text-yellow-300" },
+  strong: { label: "Strong", barColor: "bg-green-500", barWidth: "w-full", textColor: "text-green-400" },
 };
 
 const getStrengthLevel = (passedChecks: number): StrengthLevel => {
@@ -85,8 +69,8 @@ const SignUpComponent = () => {
     register,
     handleSubmit,
     watch,
-    setValue,
     unregister,
+    setValue,
     formState: { errors },
   } = useForm<Inputs>({ mode: "onChange" });
 
@@ -196,49 +180,47 @@ const SignUpComponent = () => {
       toast.error("Something went wrong. Please restart the process.");
       return;
     }
-
     setIsBusy(true);
     try {
       const res = await emailVerify({
         name: registerInfo.name,
         email: registerInfo.email,
       }).unwrap();
-
       if (res?.data) {
         const { expiresAt } = res.data;
         setExpiredAt(new Date(expiresAt).getTime());
+        toast.success("OTP resent successfully!");
         setValue("otp", "");
         setCooldown(60);
-        toast.success("OTP resent successfully!");
       }
-    } catch (error) {
-      const err = error as { data?: Array<{ message?: string }>; message?: string };
+    } catch (error: unknown) {
+      const e = error as { data?: Array<{ message?: string }>; message?: string };
       const message =
-        err?.data?.[0]?.message ||
-        err?.message ||
+        e?.data?.[0]?.message ||
+        e?.message ||
         "Failed to resend OTP. Please try again.";
       toast.error(message);
+      console.log("resend error: ", error);
     } finally {
       setIsBusy(false);
     }
   };
 
-  const handleGoogleLoginSuccess = async (
-    credentialResponse: CredentialResponse,
-  ) => {
+  const handleGoogleLoginSuccess = async (credentialResponse: CredentialResponse) => {
+    if (!credentialResponse.credential) {
+      toast.error("Google login failed");
+      return;
+    }
     setIsBusy(true);
     try {
-      const res = await googleLogin({
-        token: credentialResponse.credential,
-      }).unwrap();
-
-      if (res.data.accessToken) {
-        toast.success("User registered successfully with Google!");
+      const res = await googleLogin({ token: credentialResponse.credential }).unwrap();
+      if (res?.data?.accessToken) {
         storeUserInfo({ accessToken: res.data.accessToken });
+        toast.success("Logged in with Google successfully!");
         navigate("/");
       }
     } catch {
-      toast.error("Failed to register with Google. Please try again.");
+      toast.error("Google authentication failed");
     } finally {
       setIsBusy(false);
     }
@@ -247,6 +229,19 @@ const SignUpComponent = () => {
   const handleGoogleLoginError = () => {
     toast.error("Google login failed. Please try again.");
   };
+
+  const handleGoBack = () => {
+    setShowOtpField(false);
+  };
+
+  useEffect(() => {
+    if (!showOtpField && registerInfo) {
+      setValue("name", registerInfo.name);
+      setValue("email", registerInfo.email);
+      setValue("password", registerInfo.password);
+      setValue("confirmPassword", registerInfo.password);
+    }
+  }, [showOtpField, registerInfo, setValue]);
 
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950 px-4 py-8 sm:py-12 relative overflow-x-hidden text-slate-900 dark:text-slate-100 box-border">
@@ -264,11 +259,26 @@ const SignUpComponent = () => {
           </h2>
         </div>
 
-        <div className="bg-white/90 dark:bg-slate-800/60 backdrop-blur-xl border border-slate-200 dark:border-slate-700/50 rounded-2xl p-5 sm:p-8 shadow-2xl w-full min-w-0 overflow-hidden box-border transition-colors duration-300">
-          <h3 className="text-center text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-200">
+        {/* Card */}
+        <div className="bg-white dark:bg-slate-800/60 backdrop-blur-xl border border-slate-200 dark:border-slate-700/50 rounded-2xl p-5 sm:p-8 shadow-2xl w-full min-w-0 overflow-hidden box-border">
+
+          <h3 className="text-center text-xl sm:text-2xl font-bold tracking-tight text-slate-800 dark:text-slate-200">
             {showOtpField ? "Verify Your Email" : "Create Account"}
           </h3>
-
+          {showOtpField && registerInfo && (
+            <p className="mt-2 mb-4 text-center text-xs sm:text-sm text-slate-400 px-1">
+              We sent a 6-digit code to{" "}
+              <span className="font-semibold text-blue-400">{registerInfo.email}</span>.
+              {" "}Not the right address?{" "}
+              <button
+                type="button"
+                onClick={handleGoBack}
+                className="font-semibold text-blue-400 hover:text-blue-300 underline transition-colors cursor-pointer"
+              >
+                Change email
+              </button>
+            </p>
+          )}
           {!showOtpField && (
             <p className="mt-2 mb-6 text-center text-xs sm:text-sm text-slate-500 dark:text-slate-400 px-1">
               Join StorySparkAI and begin your creative journey.
@@ -281,7 +291,7 @@ const SignUpComponent = () => {
                 <div className="w-full border-t border-slate-200 dark:border-slate-700/50" />
               </div>
               <div className="relative flex justify-center text-xs">
-                <span className="px-4 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-semibold tracking-wide rounded-md">
+                <span className="px-4 bg-white dark:bg-slate-800 text-slate-400 font-semibold tracking-wide rounded-md">
                   SIGN UP WITH EMAIL
                 </span>
               </div>
@@ -337,7 +347,7 @@ const SignUpComponent = () => {
               {password?.length > 0 && (
                 <div className="space-y-3 -mt-1 w-full min-w-0 overflow-hidden box-border">
                   <div
-                    className="w-full h-1.5 bg-slate-200 dark:bg-slate-700/50 rounded-full overflow-hidden select-none"
+                    className="w-full h-1.5 bg-slate-200 dark:bg-slate-700/50 rounded-full overflow-hidden"
                     role="progressbar"
                     aria-valuenow={passedChecks}
                     aria-valuemin={0}
@@ -352,12 +362,6 @@ const SignUpComponent = () => {
                     {PASSWORD_REQUIREMENTS.map(({ key, label }) => {
                       const met = passwordChecks[key];
                       return (
-                        <li
-                          key={key}
-                          className={`flex items-center gap-2 ${met ? "text-emerald-600 dark:text-emerald-400" : "text-slate-500"}`}
-                          aria-label={`${label}: ${met ? "met" : "not met"}`}
-                        >
-                          <i className={`fa-solid ${met ? "fa-circle-check" : "fa-circle-xmark"} text-xs shrink-0`} aria-hidden="true" />
                           <span>{label}</span>
                         </li>
                       );
@@ -392,30 +396,49 @@ const SignUpComponent = () => {
             </form>
           ) : (
             <div className="grid grid-cols-1 gap-5 w-full min-w-0 box-border">
-              <SSInput
-                label="OTP"
-                name="otp"
-                placeholder="Enter your OTP"
-                required={true}
-                icon="fi fi-rr-key"
-                register={register}
-                validation={{
-                  required: "Please enter OTP",
-                  minLength: { value: 6, message: "OTP must be 6 digits" },
-                  maxLength: { value: 6, message: "OTP must be 6 digits" },
-                  pattern: { value: /^[0-9]{6}$/, message: "OTP must contain only numbers" },
-                }}
-                error={errors.otp}
-              />
-              <SSButton text="Verify OTP" type="button" onClick={handleOtpValidation} isLoading={isBusy} />
-              <div className="text-center pt-1">
+              <div className="w-full min-w-0 box-border">
+                <SSInput
+                  label="OTP"
+                  name="otp"
+                  placeholder="Enter your OTP"
+                  required={true}
+                  icon="fi fi-rr-key"
+                  register={register}
+                  validation={{
+                    required: "Please enter OTP",
+                    minLength: { value: 6, message: "OTP must be 6 digits" },
+                    maxLength: { value: 6, message: "OTP must be 6 digits" },
+                    pattern: { value: /^[0-9]{6}$/, message: "OTP must contain only numbers" },
+                  }}
+                  error={errors.otp}
+                />
+              </div>
+
+              <div className="w-full box-border">
+                <SSButton
+                  text="Verify OTP"
+                  type="button"
+                  onClick={handleOtpValidation}
+                  isLoading={isBusy}
+                />
+              </div>
+
+              <div className="text-center pt-1 select-none flex flex-col items-center gap-3">
                 <button
                   type="button"
                   onClick={handleResendOtp}
                   disabled={cooldown > 0 || isBusy}
-                  className="text-xs font-bold uppercase tracking-wider text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 disabled:text-slate-500 dark:disabled:text-slate-600 transition-colors duration-150 focus:outline-none disabled:cursor-not-allowed cursor-pointer"
+                  className="text-xs font-bold uppercase tracking-wider text-blue-400 hover:text-blue-300 disabled:text-slate-600 transition-colors duration-150 disabled:cursor-not-allowed cursor-pointer"
                 >
                   {cooldown > 0 ? `Resend OTP (${cooldown}s)` : "Resend OTP"}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleGoBack}
+                  disabled={isBusy}
+                  className="text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-slate-300 transition-colors duration-150 focus:outline-none cursor-pointer mt-1"
+                >
+                  Change Email
                 </button>
               </div>
             </div>
@@ -428,7 +451,7 @@ const SignUpComponent = () => {
                   <div className="w-full border-t border-slate-200 dark:border-slate-700/50" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-white dark:bg-slate-800 px-4 text-slate-500 dark:text-slate-400 font-medium rounded-md">
+                  <span className="bg-white dark:bg-slate-800 px-4 text-slate-400 font-medium rounded-md">
                     Or
                   </span>
                 </div>
@@ -443,10 +466,7 @@ const SignUpComponent = () => {
 
               <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
                 Already have an account?{" "}
-                <Link
-                  to="/login"
-                  className="font-semibold text-blue-600 dark:text-blue-400 hover:underline transition-colors"
-                >
+                <Link to="/login" className="font-semibold text-blue-400 hover:underline transition-colors">
                   Sign In
                 </Link>
               </p>
@@ -461,3 +481,4 @@ const SignUpComponent = () => {
 };
 
 export default SignUpComponent;
+

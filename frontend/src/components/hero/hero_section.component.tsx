@@ -22,15 +22,15 @@ const containerVariants = {
 
 const itemVariants: any = {
   hidden: { opacity: 0, y: 20 },
-  visible: { 
-    opacity: 1, 
-    y: 0, 
-    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } 
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] }
   },
 };
 
 const features = [
-// ... (rest of the features array remains the same)
+  // ... (rest of the features array remains the same)
   {
     title: "Infinite Variations",
     description: "Generate multiple unique branches of your story from a single starting prompt. Explore every creative possibility.",
@@ -331,7 +331,7 @@ const HeroSectionComponent = () => {
             Create, edit, and generate engaging multiple story variations from a single prompt.
             Perfect for writers, creators, and enthusiasts exploring the future of fiction.
           </p>
-          
+
           <div className="flex-grow flex flex-col items-center justify-center">
             <div className="relative max-w-3xl w-full before:absolute before:inset-0 before:-z-10 before:bg-gradient-to-r before:from-purple-500/20 before:via-indigo-500/20 before:to-blue-500/20 before:blur-xl before:animate-pulse">
               <div className="flex flex-wrap items-center justify-center gap-4">
@@ -379,8 +379,7 @@ const HeroSectionComponent = () => {
               </div>
             </div>
           </div>
-        </div>
-          </motion.div>
+        </motion.div>
 
 </div>
         <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden">
@@ -394,7 +393,7 @@ const HeroSectionComponent = () => {
               />
             ))}
           </div>
-          </div>
+        </div>
 
             <motion.div
         variants={itemVariants}

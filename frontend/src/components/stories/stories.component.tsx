@@ -32,7 +32,7 @@ type Inputs = {
   prompt: string;
 };
 
-const MAX_PROMPT_LENGTH = 2000;
+const MAX_PROMPT_LENGTH = 1000;
 const WARN_THRESHOLD = 0.85;
 
 const LANGUAGES = [
@@ -781,8 +781,17 @@ useEffect(() => {
       return;
     }
 
+    setValidationError("");
+
     if (!data.prompt.trim()) {
       toast.error("Please enter a prompt to generate a story.");
+      return;
+    }
+
+    if (data.prompt.length > MAX_PROMPT_LENGTH) {
+      const message = `Please keep your prompt to ${MAX_PROMPT_LENGTH} characters or fewer.`;
+      setValidationError(message);
+      toast.error(message);
       return;
     }
 
@@ -790,9 +799,6 @@ useEffect(() => {
       toast.error(
         "Please enter a prompt with at least 10 words to generate a story."
       );
-      return;
-    }
-      toast.error("Please enter a prompt with at least 10 words to generate a story.");
       return;
     }
 
@@ -845,8 +851,6 @@ useEffect(() => {
             : selectedLength === "long"
             ? 800
             : 450,
-        prompt: selectedGenre ? `[Genre: ${selectedGenre}] ${data.prompt}` : data.prompt,
-        wordLength: selectedLength === "short" ? 175 : selectedLength === "long" ? 800 : 450,
         language: selectedLanguage,
         tone: selectedTone || undefined,
         characters: characters.map(({ name, role, personality }) => ({ name, role, personality })),
@@ -854,8 +858,6 @@ useEffect(() => {
       const generationRequest = login
         ? generateModel(payload)
         : generateFreeModel(payload);
-
-      const generationRequest = login ? generateModel(payload) : generateFreeModel(payload);
       activeGenerationRef.current = generationRequest;
       const res = await generationRequest.unwrap();
       if (res) {
@@ -899,35 +901,6 @@ useEffect(() => {
       setLoading(false);
       setIsHighLatency(false);
     }
-  };
-
-  const handleCancelGeneration = (isTimeout = false) => {
-    activeGenerationRef.current?.abort();
-    activeGenerationRef.current = null;
-    isGenerationInProgressRef.current = false;
-    setLoading(false);
-    if (!isTimeout) {
-      toast("Story generation cancelled.");
-    }
-  };
-
-  const handleClearPrompt = () => {
-    setTextareaValue("");
-    setSelectedPrompt("");
-    setValue("prompt", "");
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  };
-
-  const handlePublishSuccess = () => {
-    setTextareaValue("");
-    setSelectedPrompt("");
-    setValue("prompt", "");
-    setCharacters([]);
-    setCurrentStep(1);
-    reset();
-  };
   }, [
     login,
     guestRequestCount,
@@ -943,7 +916,7 @@ useEffect(() => {
     handleCancelGeneration,
   ]);
 
-  const isOverLimit = textareaValue.length >= MAX_PROMPT_LENGTH;
+  const isOverLimit = textareaValue.length > MAX_PROMPT_LENGTH;
   const isNearLimit = textareaValue.length >= MAX_PROMPT_LENGTH * WARN_THRESHOLD;
   const isGenerateDisabled = loading || isOverLimit || !textareaValue.trim();
 
@@ -966,12 +939,6 @@ useEffect(() => {
     inputRef.current?.focus();
   }, []);
 
-  useKeyboardShortcuts({
-    onOpenHelp: handleOpenHelp,
-    onCloseHelp: handleCloseHelp,
-    onGenerate: handleGenerateShortcut,
-    onPublish: handlePublishShortcut,
-    focusPrompt: handleFocusPrompt,
   const generateId = () => Math.random().toString(36).substring(2, 9);
 
   const handleAddCharacter = () => {
@@ -1675,7 +1642,10 @@ useEffect(() => {
         maxLength={MAX_PROMPT_LENGTH}
         onChange={(e) => {
           setTextareaValue(e.target.value);
-    }}
+          if (validationError) {
+            setValidationError("");
+          }
+        }}
         onKeyDown={(e) => {
           if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
@@ -1687,7 +1657,11 @@ useEffect(() => {
 
 
       <div className="flex items-center justify-between mt-1 px-1">
-        {isOverLimit ? (
+        {validationError ? (
+          <p className="text-xs text-red-400 flex items-center gap-1">
+            <span>⚠</span> {validationError}
+          </p>
+        ) : isOverLimit ? (
           <p className="text-xs text-red-400 flex items-center gap-1">
             <span>⚠</span> Character limit reached — generate is disabled
           </p>
