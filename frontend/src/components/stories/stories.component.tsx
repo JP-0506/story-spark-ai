@@ -32,7 +32,7 @@ type Inputs = {
   prompt: string;
 };
 
-const MAX_PROMPT_LENGTH = 2000;
+const MAX_PROMPT_LENGTH = 1000;
 const WARN_THRESHOLD = 0.85;
 
 const LANGUAGES = [
@@ -661,13 +661,25 @@ const StoriesComponent = () => {
       return;
     }
 
+    setValidationError("");
+
     if (!data.prompt.trim()) {
       toast.error("Please enter a prompt to generate a story.");
       return;
     }
 
+    if (data.prompt.length > MAX_PROMPT_LENGTH) {
+      const message = `Please keep your prompt to ${MAX_PROMPT_LENGTH} characters or fewer.`;
+      setValidationError(message);
+      toast.error(message);
+      return;
+    }
+
     if (getWordCount(data.prompt) < 10) {
       toast.error("Please enter a prompt with at least 10 words to generate a story.");
+      toast.error(
+        "Please enter a prompt with at least 10 words to generate a story."
+      );
       return;
     }
 
@@ -712,12 +724,24 @@ const StoriesComponent = () => {
       const payload = {
         prompt: selectedGenre ? `[Genre: ${selectedGenre}] ${data.prompt}` : data.prompt,
         wordLength: selectedLength === "short" ? 175 : selectedLength === "long" ? 800 : 450,
+        prompt: selectedGenre
+          ? `[Genre: ${selectedGenre}] ${data.prompt}`
+          : data.prompt,
+        wordLength:
+          selectedLength === "short"
+            ? 175
+            : selectedLength === "long"
+            ? 800
+            : 450,
         language: selectedLanguage,
         tone: selectedTone || undefined,
         characters: characters.map(({ name, role, personality }) => ({ name, role, personality })),
       };
 
       const generationRequest = login ? generateModel(payload) : generateFreeModel(payload);
+      const generationRequest = login
+        ? generateModel(payload)
+        : generateFreeModel(payload);
       activeGenerationRef.current = generationRequest;
       const res = await generationRequest.unwrap();
       if (res) {
@@ -777,7 +801,7 @@ const StoriesComponent = () => {
     reset,
   ]);
 
-  const isOverLimit = textareaValue.length >= MAX_PROMPT_LENGTH;
+  const isOverLimit = textareaValue.length > MAX_PROMPT_LENGTH;
   const isNearLimit = textareaValue.length >= MAX_PROMPT_LENGTH * WARN_THRESHOLD;
   const isGenerateDisabled = loading || isOverLimit || !textareaValue.trim();
 
@@ -1292,6 +1316,235 @@ const StoriesComponent = () => {
                       Your story is being generated. You can cancel the request if it takes too long.
                     </p>
                   )}
+                </form>
+              </div>
+            </div>
+
+            <div className="w-full max-w-2xl m-auto mt-4">
+              <h1 className="text-sm text-slate-500 mb-1 dark:text-gray-500">
+                {text.examples}
+              </h1>
+
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  type="button"
+                  onClick={handleToggleDropdown}
+                  className="w-full p-3 bg-slate-800 text-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 flex items-center justify-between text-sm text-left transition-all duration-200"
+                >
+                  <span className="truncate pr-4">
+                    {selectedPrompt || text.selectPrompt}
+                  </span>
+                  <span
+                    className={`text-gray-300 transition-transform duration-200 ${
+                      isDropdownOpen ? "rotate-180" : ""
+                    }`}
+                  >
+
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </button>
+
+                </div>
+
+                <div className="flex items-center justify-between mt-3 pt-2 border-t border-slate-200/40 dark:border-white/5 select-none w-full box-border">
+                  <div className="flex-1 min-w-0 pr-4">
+                    {isOverLimit ? (
+                      <p className="text-[11px] font-semibold text-red-500 dark:text-red-400 flex items-center gap-1 truncate m-0">
+                        <span>⚠</span> {text.characterLimit}
+                      </p>
+                    ) : isNearLimit ? (
+                      <p className="text-[11px] font-semibold text-amber-500 dark:text-amber-400 flex items-center gap-1 truncate m-0">
+                        <span>⚠</span> {MAX_PROMPT_LENGTH - textareaValue.length} {text.charactersRemaining}
+                      </p>
+                    ) : null}
+                  </div>
+
+                  <span className={`text-[11px] font-bold tabular-nums shrink-0 ml-auto ${
+                    isOverLimit ? "text-red-500 dark:text-red-400" : isNearLimit ? "text-amber-500" : "text-slate-400"
+                  }`}>
+                    {textareaValue.length} / {MAX_PROMPT_LENGTH}
+                  </span>
+                </div>
+              </div>
+
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+
+      {/* Clear prompt button - next to language selector */}
+      {textareaValue.length > 0 && (
+        <button
+          type="button"
+          onClick={handleClearPrompt}
+          className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-all duration-200 border border-red-500/20"
+          aria-label={text.close}
+          title="Clear prompt"
+        >
+          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+          Clear
+        </button>
+      )}
+    </div>
+    {showRestorePrompt && (
+  <div className="mb-3 p-3 rounded-lg border border-indigo-500/40 bg-indigo-500/10">
+    <p className="text-sm text-gray-300 mb-2">
+      📄 A previously saved draft was found. Restore it?
+    </p>
+
+    <div className="flex gap-2">
+      <button
+        type="button"
+        onClick={handleRestoreDraft}
+        className="px-3 py-1 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white text-sm"
+      >
+        Restore
+      </button>
+
+      <button
+        type="button"
+        onClick={handleDiscardDraft}
+        className="px-3 py-1 rounded-md bg-red-600 hover:bg-red-700 text-white text-sm"
+      >
+        Discard
+      </button>
+    </div>
+  </div>
+)}
+    <div className="relative">
+      <textarea
+  {...register("prompt")}
+  ref={(el) => {
+    register("prompt").ref(el);
+    inputRef.current = el;
+  }}
+        className={`w-full h-32 sm:h-40 resize-none border-none outline-none bg-transparent text-gray-800 dark:text-gray-200 focus:ring-0 text-lg leading-relaxed tracking-wide placeholder:italic placeholder:text-gray-500 dark:placeholder:text-gray-400 pr-4 transition-colors duration-200 ${
+          isOverLimit
+            ? "ring-1 ring-red-500 rounded"
+            : isNearLimit
+            ? "ring-1 ring-yellow-400 rounded"
+            : ""
+        }`}
+        placeholder={text.promptPlaceholder}
+        value={textareaValue}
+        maxLength={MAX_PROMPT_LENGTH}
+        onChange={(e) => {
+          setTextareaValue(e.target.value);
+          if (validationError) {
+            setValidationError("");
+          }
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            const form = e.currentTarget.closest("form");
+            if (form) form.requestSubmit();
+          }
+        }}
+        />
+
+
+      <div className="flex items-center justify-between mt-1 px-1">
+        {validationError ? (
+          <p className="text-xs text-red-400 flex items-center gap-1">
+            <span>⚠</span> {validationError}
+          </p>
+        ) : isOverLimit ? (
+          <p className="text-xs text-red-400 flex items-center gap-1">
+            <span>⚠</span> Character limit reached — generate is disabled
+          </p>
+        ) : isNearLimit ? (
+          <p className="text-xs text-yellow-400 flex items-center gap-1">
+            <span>⚠</span>{" "}
+            {MAX_PROMPT_LENGTH - textareaValue.length} characters remaining
+          </p>
+        ) : (
+          <span />
+        )}
+
+        <span
+          className={`text-xs tabular-nums ml-auto ${
+            isOverLimit
+              ? "text-red-400 font-medium"
+              : isNearLimit
+              ? "text-yellow-400"
+              : "text-gray-500"
+          }`}
+        >
+          {textareaValue.length} / {MAX_PROMPT_LENGTH}
+        </span>
+      </div>
+    </div>
+    
+
+{draftStatus && (
+   <p className="text-xs text-green-500 mt-2 px-1">
+    💾 {draftStatus}
+   </p>
+)}
+    
+    <p className="text-xs text-gray-500 mt-1 px-1">
+      💡  <span className="font-medium">Keyboard tip:</span> Press{" "}
+      <kbd className="px-1 py-0.5 text-xs bg-gray-700 rounded border border-gray-600">
+        Enter
+      </kbd>{" "}
+      to generate &bull;{" "}
+      <kbd className="px-1 py-0.5 text-xs bg-gray-700 rounded border border-gray-600">
+        Ctrl + Enter
+      </kbd>{" "}
+      also works &bull;{" "}
+      <kbd className="px-1 py-0.5 text-xs bg-gray-700 rounded border border-gray-600">
+        Shift + Enter
+      </kbd>{" "}
+      for new line
+    </p>
+
+    <div className="flex justify-end mt-2 w-full">
+      <button
+        type="submit"
+        disabled={loading || isOverLimit}
+        aria-busy={loading}
+        aria-disabled={loading || isOverLimit}
+        className={`rounded-lg bg-gradient-to-r from-blue-400 to-indigo-500 text-gray-200 px-6 py-3 font-semibold ${
+          loading || isOverLimit
+            ? "opacity-50 cursor-not-allowed"
+            : "cursor-pointer hover:shadow-lg hover:shadow-indigo-500/50 hover:scale-105"
+        } transition-all duration-300 transform flex items-center space-x-2 group`}
+      >
+        <i className="fas fa-wand-magic-sparkles text-xl transition-transform duration-300 group-hover:animate-wiggle"></i>
+        {loading ? "Generating..." : "Generate"}
+      </button>
+    </div>
+  </form>
+</div>
+            </div>
+
+              <div className="text-[11px] font-medium leading-relaxed text-slate-400 dark:text-slate-500 select-none w-full box-border">
+                💡 <span className="font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mr-1">{text.keyboardTip}</span>
+                {text.press} <kbd className="px-1.5 py-0.5 text-[10px] font-bold bg-slate-100 dark:bg-white/10 border border-slate-200 dark:border-white/10 rounded-md text-slate-700 dark:text-slate-300 mx-0.5 shadow-sm">Enter</kbd> {text.toGenerate} &bull;{" "}
+                <kbd className="px-1.5 py-0.5 text-[10px] font-bold bg-slate-100 dark:bg-white/10 border border-slate-200 dark:border-white/10 rounded-md text-slate-700 dark:text-slate-300 mx-0.5 shadow-sm">Ctrl + Enter</kbd> {text.alsoWorks} &bull;{" "}
+                <kbd className="px-1.5 py-0.5 text-[10px] font-bold bg-slate-100 dark:bg-white/10 border border-slate-200 dark:border-white/10 rounded-md text-slate-700 dark:text-slate-300 mx-0.5 shadow-sm">Shift + Enter</kbd> {text.forNewLine}
+              </div>
+
+              <div className="flex justify-end pt-2 w-full box-border">
+                <button
+                  type="submit"
+                  disabled={loading || isOverLimit}
+                  aria-busy={loading}
+                  aria-disabled={loading || isOverLimit}
+                  className={`w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs sm:text-sm font-bold py-3 px-6 rounded-xl shadow-md shadow-blue-500/10 transition-all duration-150 active:scale-[0.98] select-none uppercase tracking-wider flex items-center justify-center gap-2 ${
+                    loading || isOverLimit ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+                  } group`}
+                >
+                  <i className="fas fa-wand-magic-sparkles text-sm group-hover:scale-110 transition-transform duration-200" />
+                  <span>{loading ? text.generating : text.generate}</span>
+                </button>
+              </div>
                 </>
               )}
             </form>
