@@ -1,4 +1,4 @@
-import { Server, Socket } from "socket.io";
+﻿import { Server, Socket } from "socket.io";
 import crypto from "crypto";
 import logger from "../utils/logger.util";
 import { AiModelService } from "../app/modules/ai_model/ai_model.service";
@@ -161,36 +161,14 @@ export const setupCollabSocket = (io: Server) => {
     });
 
     // Yjs document updates
-socket.on("collab:yjs-update", ({ roomId, update }) => {
-  const room = rooms.get(roomId);
-
-  if (!room) {
-    socket.emit("collab:error", {
-      message: "Room not found",
+    socket.on("collab:yjs-update", ({ roomId, update }) => {
+      socket.to(roomId).emit("collab:yjs-update", { update });
     });
-    return;
-  }
 
-  socket.to(roomId).emit("collab:yjs-update", {
-    update,
-  });
-});
-
-// Awareness / cursor updates
-socket.on("collab:awareness", ({ roomId, awareness }) => {
-  const room = rooms.get(roomId);
-
-  if (!room) {
-    socket.emit("collab:error", {
-      message: "Room not found",
+    // Awareness / cursor updates
+    socket.on("collab:awareness", ({ roomId, awareness }) => {
+      socket.to(roomId).emit("collab:awareness", { awareness });
     });
-    return;
-  }
-
-  socket.to(roomId).emit("collab:awareness", {
-    awareness,
-  });
-});
 
     // AI continues the story
     socket.on("collab:ai_continue", async ({ roomId }) => {
@@ -257,7 +235,7 @@ socket.on("collab:awareness", ({ roomId, awareness }) => {
 
             const aiChunk: IStoryChunk = {
               authorId: "ai",
-              authorName: "✨ AI",
+              authorName: "âœ¨ AI",
               color: "#d4af37",
               text: continuationText,
               isAI: true,
