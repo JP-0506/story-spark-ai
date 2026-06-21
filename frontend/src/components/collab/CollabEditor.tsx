@@ -135,6 +135,11 @@ export default function CollabEditor({ storyId, userId, username, userColor }: C
     return () => {
       ydoc.off('update', sendUpdate);
       socket.disconnect();
+      awareness.off('update', renderRemoteCursors);
+      awareness.destroy();
+      binding.destroy();
+      persistence.destroy();
+      ydoc.destroy();
     };
   }, [storyId, userId, username, userColor]);
 
