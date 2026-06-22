@@ -426,6 +426,10 @@ const PricingComponent = () => {
           cursor: pointer;
           border: none;
           outline: none;
+          border: 2px solid rgba(99, 102, 241, 0.6);
+          box-shadow:
+          0 0 15px rgba(99, 102, 241, 0.3),
+          0 0 30px rgba(99, 102, 241, 0.15);
         }
         .pricing-cta-btn::before {
           content: '';
@@ -441,7 +445,11 @@ const PricingComponent = () => {
         }
         .pricing-cta-btn:hover {
           transform: translateY(-2px);
-          box-shadow: 0 8px 30px -6px currentColor;
+          border-color: rgba(34, 211, 238, 0.9);
+          box-shadow:
+          0 0 20px rgba(34, 211, 238, 0.5),
+          0 0 40px rgba(34, 211, 238, 0.25);
+
         }
         .pricing-cta-btn:active {
           transform: translateY(0) scale(0.98);
