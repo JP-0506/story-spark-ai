@@ -15,14 +15,11 @@ import { useNavigate, useLocation } from "react-router-dom";
 
   const NavListComponent = () => {
   const navigate = useNavigate();
-  const { pathname } = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [loggedIn, setLoggedIn] = useState(isLoggedIn());
-<<<<<<< HEAD
-=======
+
   const { pathname } = useLocation();
 
->>>>>>> 51a9dfc3 (Update frontend components)
 
   const handleLogout = () => {
     removeUserInfo();
